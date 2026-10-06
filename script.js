@@ -1,4 +1,3 @@
-/* script.js */
 /* ==========================================================================
    1. GAME STATE MANAGEMENT & CAMERA STREAM
    ========================================================================== */
@@ -7,7 +6,7 @@ let selectedMenuIndex = 0;
 let targetScore = 3;         
 let cameraStream = null;
 
-// Default head images (SVGs generated as Data URLs)
+// Default avatar head SVGs (as Data URLs)
 let p1HeadSrc = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%233b82f6'/><circle cx='35' cy='40' r='8' fill='%23fff'/><circle cx='65' cy='40' r='8' fill='%23fff'/><circle cx='35' cy='40' r='4' fill='%23000'/><circle cx='65' cy='40' r='4' fill='%23000'/><path d='M 30 70 Q 50 85 70 70' stroke='%23fff' stroke-width='6' fill='none'/></svg>";
 let p2HeadSrc = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%23ef4444'/><circle cx='35' cy='40' r='8' fill='%23fff'/><circle cx='65' cy='40' r='8' fill='%23fff'/><circle cx='35' cy='40' r='4' fill='%23000'/><circle cx='65' cy='40' r='4' fill='%23000'/><path d='M 30 70 Q 50 85 70 70' stroke='%23fff' stroke-width='6' fill='none'/></svg>";
 
@@ -23,10 +22,6 @@ let greenLightTimer = null;
 
 // Tug-of-War State
 let tugPosition = 50;        
-let p1CounterActive = false;
-let p2CounterActive = false;
-let p1CounterTimer = null;
-let p2CounterTimer = null;
 
 // Pattern Mash State
 const directionKeysP1 = ['w', 'a', 's', 'd'];
@@ -61,9 +56,13 @@ const countdownLabel = document.getElementById('countdownLabel');
 const playfieldContent = document.getElementById('playfieldContent');
 const statusText = document.getElementById('status');
 const score1El = document.getElementById('score1');
-score2El = document.getElementById('score2');
+const score2El = document.getElementById('score2');
 const p1KeyBadge = document.getElementById('p1KeyBadge');
 const p2KeyBadge = document.getElementById('p2KeyBadge');
+const p1PreviewContainer = document.getElementById('p1PreviewContainer');
+const p2PreviewContainer = document.getElementById('p2PreviewContainer');
+const p1CardHead = document.getElementById('p1CardHead');
+const p2CardHead = document.getElementById('p2CardHead');
 
 /* ==========================================================================
    3. WEBCAM INITIALIZATION & SNAPSHOT CAPTURE
@@ -78,7 +77,7 @@ async function initWebcam() {
         p2Video.srcObject = cameraStream;
     } catch (err) {
         console.error("Webcam access error:", err);
-        statusText.textContent = "Camera access denied or unavailable. Default avatars loaded.";
+        statusText.textContent = "Camera access unavailable. Using default avatars.";
     }
 }
 
@@ -90,11 +89,11 @@ function captureSnapshot(videoEl, canvasEl) {
     canvasEl.width = size;
     canvasEl.height = size;
     
-    // Center-crop video to square canvas
+    // Center crop to square
     const startX = ((videoEl.videoWidth || size) - size) / 2;
     const startY = ((videoEl.videoHeight || size) - size) / 2;
     
-    // Draw mirrored image for natural camera feel
+    // Draw mirrored image for video selfie feel
     ctx.translate(size, 0);
     ctx.scale(-1, 1);
     ctx.drawImage(videoEl, startX, startY, size, size, 0, 0, size, size);
@@ -128,12 +127,10 @@ p2SnapBtn.addEventListener('click', () => {
 });
 
 function updateAvatarDisplays() {
-    document.querySelectorAll('.p1-head-preview').forEach(el => {
-        el.style.backgroundImage = `url("${p1HeadSrc}")`;
-    });
-    document.querySelectorAll('.p2-head-preview').forEach(el => {
-        el.style.backgroundImage = `url("${p2HeadSrc}")`;
-    });
+    if (p1PreviewContainer) p1PreviewContainer.innerHTML = getStickmanSVG(1, 'idle');
+    if (p2PreviewContainer) p2PreviewContainer.innerHTML = getStickmanSVG(2, 'idle');
+    if (p1CardHead) p1CardHead.innerHTML = getHeadOnlySVG(1);
+    if (p2CardHead) p2CardHead.innerHTML = getHeadOnlySVG(2);
 }
 
 confirmAvatarsBtn.addEventListener('click', () => {
@@ -143,10 +140,6 @@ confirmAvatarsBtn.addEventListener('click', () => {
     currentScreen = 'menu';
     statusText.textContent = 'Use [W / S] or [▲ / ▼] to navigate, [Enter] to select target score';
 });
-
-// Initialize Camera and default avatars
-initWebcam();
-updateAvatarDisplays();
 
 /* ==========================================================================
    4. KEYBOARD EVENT LISTENER & MENU NAVIGATION
@@ -180,16 +173,12 @@ function handleMenuNavigation(key) {
 
 function updateMenuSelection() {
     menuBtns.forEach((btn, index) => {
-        if (index === selectedMenuIndex) {
-            btn.classList.add('selected');
-        } else {
-            btn.classList.remove('selected');
-        }
+        btn.classList.toggle('selected', index === selectedMenuIndex);
     });
 }
 
 /* ==========================================================================
-   5. MATCH & ROUND FLOW WITH COUNTDOWN OVERLAY
+   5. MATCH & ROUND FLOW
    ========================================================================== */
 function startGame() {
     p1Score = 0;
@@ -243,8 +232,8 @@ function setupActiveRoundMode() {
         p2KeyBadge.textContent = 'Key: [Left Arrow]';
         setupGreenLight();
     } else if (currentMode === 'tug') {
-        p1KeyBadge.textContent = 'A (Push) | S (Counter)';
-        p2KeyBadge.textContent = 'Left (Push) | Down (Counter)';
+        p1KeyBadge.textContent = 'Mash [A]';
+        p2KeyBadge.textContent = 'Mash [Left Arrow]';
         setupTugOfWar();
     } else if (currentMode === 'pattern') {
         p1KeyBadge.textContent = 'WASD Keys';
@@ -254,12 +243,30 @@ function setupActiveRoundMode() {
 }
 
 /* ==========================================================================
-   6. STICKMAN SVG GENERATOR HELPERS
+   6. SVG RENDER HELPERS (NATIVE SVG CLIPPING FOR HEAD IMAGES)
    ========================================================================== */
+function getHeadOnlySVG(player) {
+    const headUrl = player === 1 ? p1HeadSrc : p2HeadSrc;
+    const clipId = `head-clip-mini-${player}-${Math.random().toString(36).substr(2, 5)}`;
+    const borderColor = player === 1 ? '#3b82f6' : '#ef4444';
+
+    return `
+    <svg viewBox="0 0 50 50" class="stickman-svg">
+        <defs>
+            <clipPath id="${clipId}">
+                <circle cx="25" cy="25" r="22" />
+            </clipPath>
+        </defs>
+        <circle cx="25" cy="25" r="24" fill="none" stroke="${borderColor}" stroke-width="2"/>
+        <image href="${headUrl}" x="3" y="3" width="44" height="44" clip-path="url(#${clipId})" preserveAspectRatio="xMidYMid slice" />
+    </svg>`;
+}
+
 function getStickmanSVG(player, pose = 'idle') {
     const isP1 = player === 1;
     const strokeColor = isP1 ? '#3b82f6' : '#ef4444';
     const headUrl = isP1 ? p1HeadSrc : p2HeadSrc;
+    const clipId = `head-clip-${player}-${Math.random().toString(36).substr(2, 5)}`;
 
     let armLeft = "x2='20' y2='65'";
     let armRight = "x2='80' y2='65'";
@@ -279,10 +286,18 @@ function getStickmanSVG(player, pose = 'idle') {
 
     return `
     <svg class="stickman-svg" viewBox="0 0 100 120" style="stroke: ${strokeColor}">
-        <foreignObject x="25" y="2" width="50" height="50">
-            <div class="head-circle" style="background-image: url('${headUrl}')"></div>
-        </foreignObject>
-        <line x1="50" y1="48" x2="50" y2="75" class="stick-line" />
+        <defs>
+            <clipPath id="${clipId}">
+                <circle cx="50" cy="25" r="20" />
+            </clipPath>
+        </defs>
+        
+        <!-- Head Image -->
+        <image href="${headUrl}" x="30" y="5" width="40" height="40" clip-path="url(#${clipId})" preserveAspectRatio="xMidYMid slice" />
+        <circle cx="50" cy="25" r="20" fill="none" stroke="${strokeColor}" stroke-width="3" />
+
+        <!-- Stickman Body Lines -->
+        <line x1="50" y1="45" x2="50" y2="75" class="stick-line" />
         <line x1="50" y1="55" ${armLeft} class="stick-line" />
         <line x1="50" y1="55" ${armRight} class="stick-line" />
         ${legs}
@@ -335,22 +350,17 @@ function handleGreenInput(key) {
 }
 
 /* ==========================================================================
-   8. MODE 2: TUG-OF-WAR CLASH
+   8. MODE 2: TUG-OF-WAR CLASH (SIMPLIFIED - NO PARRY)
    ========================================================================== */
 function setupTugOfWar() {
     tugPosition = 50;
-    p1CounterActive = false;
-    p2CounterActive = false;
-
-    statusText.textContent = `MODE: Tug-of-War Clash | First to ${targetScore} Points!`;
+    statusText.textContent = `MODE: Tug-of-War | Mash Key to Push! First to ${targetScore} Points!`;
     renderTugUI();
 }
 
 function renderTugUI() {
     playfieldContent.innerHTML = `
     <div class="tug-wrapper">
-      <div id="counterStatus" class="counter-indicator"></div>
-      
       <div class="tug-stage">
         <div class="stickman-container p1-pull" style="transform: translateX(${ (50 - tugPosition) * 1.5 }px)">
             ${getStickmanSVG(1, 'pull')}
@@ -367,46 +377,16 @@ function renderTugUI() {
         </div>
       </div>
 
-      <p style="font-size: 0.85rem; color: #bdae9d;">Push the marker to the opponent's side!</p>
+      <p style="font-size: 0.85rem; color: #bdae9d;">P1 [A] Push ← | → Push [Left Arrow] P2</p>
     </div>
   `;
 }
 
 function handleTugInput(key) {
     if (key === 'a') {
-        if (p2CounterActive) {
-            tugPosition = Math.min(100, tugPosition + 25);
-            triggerCounterMessage("P2 PARRIED P1'S PUSH!", 'p2');
-        } else {
-            tugPosition = Math.max(0, tugPosition - 4);
-        }
-    } else if (key === 's' && !p1CounterActive) {
-        p1CounterActive = true;
-        triggerCounterMessage("P1 COUNTER STANCE!", 'p1');
-        clearTimeout(p1CounterTimer);
-        p1CounterTimer = setTimeout(() => {
-            p1CounterActive = false;
-            const statusEl = document.getElementById('counterStatus');
-            if (statusEl) statusEl.textContent = '';
-        }, 400);
-    }
-
-    if (key === 'arrowleft') {
-        if (p1CounterActive) {
-            tugPosition = Math.max(0, tugPosition - 25);
-            triggerCounterMessage("P1 PARRIED P2'S PUSH!", 'p1');
-        } else {
-            tugPosition = Math.min(100, tugPosition + 4);
-        }
-    } else if (key === 'arrowdown' && !p2CounterActive) {
-        p2CounterActive = true;
-        triggerCounterMessage("P2 COUNTER STANCE!", 'p2');
-        clearTimeout(p2CounterTimer);
-        p2CounterTimer = setTimeout(() => {
-            p2CounterActive = false;
-            const statusEl = document.getElementById('counterStatus');
-            if (statusEl) statusEl.textContent = '';
-        }, 400);
+        tugPosition = Math.max(0, tugPosition - 4);
+    } else if (key === 'arrowleft') {
+        tugPosition = Math.min(100, tugPosition + 4);
     }
 
     renderTugUI();
@@ -415,14 +395,6 @@ function handleTugInput(key) {
         awardPoint(1, "Player 1 overpowered Player 2!");
     } else if (tugPosition >= 100) {
         awardPoint(2, "Player 2 overpowered Player 1!");
-    }
-}
-
-function triggerCounterMessage(msg, playerClass) {
-    const statusEl = document.getElementById('counterStatus');
-    if (statusEl) {
-        statusEl.textContent = msg;
-        statusEl.className = `counter-indicator counter-${playerClass}`;
     }
 }
 
@@ -563,3 +535,7 @@ function awardPoint(winner, message) {
         }, 2000);
     }
 }
+
+// Initial camera startup & initial UI render
+initWebcam();
+updateAvatarDisplays();

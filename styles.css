@@ -1,4 +1,3 @@
-/* styles.css */
 /* --- Color Palette & Root Variables --- */
 :root {
     --bg-color: #1a161c;
@@ -23,9 +22,7 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-image: url(assets/bgArcade.jpg);
-    background-size: cover;
-    background-position: center;
+    background-color: var(--bg-color);
     color: var(--text-main);
     min-height: 100vh;
     display: flex;
@@ -112,7 +109,7 @@ header h1 {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transform: scaleX(-1); /* Mirror camera stream */
+    transform: scaleX(-1);
 }
 
 .hidden-canvas {
@@ -132,20 +129,6 @@ header h1 {
 .stick-line {
     stroke-width: 6;
     stroke-linecap: round;
-}
-
-.p1-stroke { stroke: var(--p1-color); }
-.p2-stroke { stroke: var(--p2-color); }
-
-.head-circle {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    border: 2px solid #fff;
-    overflow: hidden;
 }
 
 .upload-btn {
@@ -228,8 +211,8 @@ header h1 {
 .p2-card { border-color: var(--p2-color); }
 
 .head-mini {
-    width: 38px;
-    height: 38px;
+    width: 42px;
+    height: 42px;
     margin-bottom: 2px;
 }
 
@@ -377,7 +360,7 @@ header h1 {
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
     align-items: center;
 }
 
@@ -392,10 +375,21 @@ header h1 {
 .tug-track {
     flex: 1;
     height: 28px;
-    background-color: #ff2002;
+    background-color: #3b353f;
     border-radius: 14px;
     overflow: hidden;
     position: relative;
+}
+
+.rope-line {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background-color: #d97706;
+    transform: translateY(-50%);
+    z-index: 1;
 }
 
 .tug-marker {
@@ -412,19 +406,10 @@ header h1 {
 .tug-fill-p1 {
     height: 100%;
     background: linear-gradient(90deg, var(--p1-color), #60a5fa);
-    transition: width 0.08s ease-out;
+    transition: width 0.05s ease-out;
     position: relative;
     z-index: 2;
 }
-
-.counter-indicator {
-    font-size: 0.9rem;
-    font-weight: bold;
-    height: 20px;
-}
-
-.counter-p1 { color: var(--p1-color); }
-.counter-p2 { color: var(--p2-color); }
 
 /* Mode 3: Pattern Mash Specifics */
 .pattern-wrapper {

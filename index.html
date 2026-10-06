@@ -1,4 +1,3 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -32,17 +31,8 @@
                         <canvas id="p1Canvas" class="hidden-canvas"></canvas>
                     </div>
 
-                    <div class="stickman-preview">
-                        <svg class="stickman-svg" viewBox="0 0 100 120">
-                            <foreignObject x="30" y="5" width="40" height="40">
-                                <div class="head-circle p1-head-preview"></div>
-                            </foreignObject>
-                            <line x1="50" y1="45" x2="50" y2="80" class="stick-line p1-stroke" />
-                            <line x1="50" y1="55" x2="25" y2="70" class="stick-line p1-stroke" />
-                            <line x1="50" y1="55" x2="75" y2="70" class="stick-line p1-stroke" />
-                            <line x1="50" y1="80" x2="30" y2="115" class="stick-line p1-stroke" />
-                            <line x1="50" y1="80" x2="70" y2="115" class="stick-line p1-stroke" />
-                        </svg>
+                    <div class="stickman-preview" id="p1PreviewContainer">
+                        <!-- Stickman SVG rendered via JS -->
                     </div>
 
                     <button id="p1SnapBtn" class="upload-btn p1-btn">📸 Snap P1 Head</button>
@@ -57,17 +47,8 @@
                         <canvas id="p2Canvas" class="hidden-canvas"></canvas>
                     </div>
 
-                    <div class="stickman-preview">
-                        <svg class="stickman-svg" viewBox="0 0 100 120">
-                            <foreignObject x="30" y="5" width="40" height="40">
-                                <div class="head-circle p2-head-preview"></div>
-                            </foreignObject>
-                            <line x1="50" y1="45" x2="50" y2="80" class="stick-line p2-stroke" />
-                            <line x1="50" y1="55" x2="25" y2="70" class="stick-line p2-stroke" />
-                            <line x1="50" y1="55" x2="75" y2="70" class="stick-line p2-stroke" />
-                            <line x1="50" y1="80" x2="30" y2="115" class="stick-line p2-stroke" />
-                            <line x1="50" y1="80" x2="70" y2="115" class="stick-line p2-stroke" />
-                        </svg>
+                    <div class="stickman-preview" id="p2PreviewContainer">
+                        <!-- Stickman SVG rendered via JS -->
                     </div>
 
                     <button id="p2SnapBtn" class="upload-btn p2-btn">📸 Snap P2 Head</button>
@@ -94,7 +75,7 @@
             <!-- Scoreboard -->
             <div class="scoreboard">
                 <div class="player-card p1-card">
-                    <div class="p1-head-preview head-mini"></div>
+                    <div class="head-mini" id="p1CardHead"></div>
                     <span class="player-title">Player 1</span>
                     <span class="key-badge" id="p1KeyBadge">Keys: WASD</span>
                     <span class="score" id="score1">0</span>
@@ -103,14 +84,14 @@
                 <div class="vs-divider">VS</div>
 
                 <div class="player-card p2-card">
-                    <div class="p2-head-preview head-mini"></div>
+                    <div class="head-mini" id="p2CardHead"></div>
                     <span class="player-title">Player 2</span>
                     <span class="key-badge" id="p2KeyBadge">Keys: Arrow Keys</span>
                     <span class="score" id="score2">0</span>
                 </div>
             </div>
 
-            <!-- Playfield & Hidden Arena Container -->
+            <!-- Playfield Container -->
             <div class="arena-wrapper">
 
                 <!-- Countdown Overlay -->
@@ -126,7 +107,7 @@
 
             </div>
 
-            <!-- Controls & Exit Hint -->
+            <!-- Exit Hint -->
             <div class="footer-hints">
                 <p class="controls-hint">Press Esc to Return to Menu</p>
             </div>
