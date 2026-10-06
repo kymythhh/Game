@@ -1,0 +1,140 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reflex Duel</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <div class="game-card">
+        <header>
+            <h1>REFLEX DUEL</h1>
+            <p id="status">Use your camera to snap player heads for the stickmen!</p>
+        </header>
+
+        <!-- STEP 1: WEBCAM AVATAR SETUP SCREEN -->
+        <div id="avatarScreen" class="screen active">
+            <h2>Player Profile Setup</h2>
+            <p class="subtitle">Snap photos with your device camera to customize your duelists</p>
+
+            <div class="avatar-setup-grid">
+                <!-- Player 1 Setup -->
+                <div class="avatar-card p1-setup">
+                    <h3>Player 1</h3>
+                    
+                    <div class="camera-viewport">
+                        <video id="p1Video" autoplay playsinline muted></video>
+                        <canvas id="p1Canvas" class="hidden-canvas"></canvas>
+                    </div>
+
+                    <div class="stickman-preview">
+                        <svg class="stickman-svg" viewBox="0 0 100 120">
+                            <foreignObject x="30" y="5" width="40" height="40">
+                                <div class="head-circle p1-head-preview"></div>
+                            </foreignObject>
+                            <line x1="50" y1="45" x2="50" y2="80" class="stick-line p1-stroke" />
+                            <line x1="50" y1="55" x2="25" y2="70" class="stick-line p1-stroke" />
+                            <line x1="50" y1="55" x2="75" y2="70" class="stick-line p1-stroke" />
+                            <line x1="50" y1="80" x2="30" y2="115" class="stick-line p1-stroke" />
+                            <line x1="50" y1="80" x2="70" y2="115" class="stick-line p1-stroke" />
+                        </svg>
+                    </div>
+
+                    <button id="p1SnapBtn" class="upload-btn p1-btn">📸 Snap P1 Head</button>
+                </div>
+
+                <!-- Player 2 Setup -->
+                <div class="avatar-card p2-setup">
+                    <h3>Player 2</h3>
+
+                    <div class="camera-viewport">
+                        <video id="p2Video" autoplay playsinline muted></video>
+                        <canvas id="p2Canvas" class="hidden-canvas"></canvas>
+                    </div>
+
+                    <div class="stickman-preview">
+                        <svg class="stickman-svg" viewBox="0 0 100 120">
+                            <foreignObject x="30" y="5" width="40" height="40">
+                                <div class="head-circle p2-head-preview"></div>
+                            </foreignObject>
+                            <line x1="50" y1="45" x2="50" y2="80" class="stick-line p2-stroke" />
+                            <line x1="50" y1="55" x2="25" y2="70" class="stick-line p2-stroke" />
+                            <line x1="50" y1="55" x2="75" y2="70" class="stick-line p2-stroke" />
+                            <line x1="50" y1="80" x2="30" y2="115" class="stick-line p2-stroke" />
+                            <line x1="50" y1="80" x2="70" y2="115" class="stick-line p2-stroke" />
+                        </svg>
+                    </div>
+
+                    <button id="p2SnapBtn" class="upload-btn p2-btn">📸 Snap P2 Head</button>
+                </div>
+            </div>
+
+            <button id="confirmAvatarsBtn" class="primary-btn">Continue to Match Setup →</button>
+        </div>
+
+        <!-- STEP 2: TARGET SCORE MENU SCREEN -->
+        <div id="menuScreen" class="screen">
+            <h2>Select Target Score</h2>
+            <div class="menu-options" id="scoreOptions">
+                <div class="menu-btn selected" data-value="3">First to 3 Points</div>
+                <div class="menu-btn" data-value="5">First to 5 Points</div>
+                <div class="menu-btn" data-value="7">First to 7 Points</div>
+            </div>
+            <p class="controls-hint">Use [W / S] or [▲ / ▼] to navigate, [Enter] to Start</p>
+        </div>
+
+        <!-- STEP 3: GAME ARENA SCREEN -->
+        <div id="gameScreen" class="screen">
+
+            <!-- Scoreboard -->
+            <div class="scoreboard">
+                <div class="player-card p1-card">
+                    <div class="p1-head-preview head-mini"></div>
+                    <span class="player-title">Player 1</span>
+                    <span class="key-badge" id="p1KeyBadge">Keys: WASD</span>
+                    <span class="score" id="score1">0</span>
+                </div>
+
+                <div class="vs-divider">VS</div>
+
+                <div class="player-card p2-card">
+                    <div class="p2-head-preview head-mini"></div>
+                    <span class="player-title">Player 2</span>
+                    <span class="key-badge" id="p2KeyBadge">Keys: Arrow Keys</span>
+                    <span class="score" id="score2">0</span>
+                </div>
+            </div>
+
+            <!-- Playfield & Hidden Arena Container -->
+            <div class="arena-wrapper">
+
+                <!-- Countdown Overlay -->
+                <div id="countdownOverlay" class="countdown-overlay">
+                    <div class="countdown-label" id="countdownLabel">GET READY FOR NEXT ROUND</div>
+                    <div class="countdown-number" id="countdownTimer">3</div>
+                </div>
+
+                <!-- Main Game Playfield -->
+                <div id="arena" class="arena">
+                    <div id="playfieldContent"></div>
+                </div>
+
+            </div>
+
+            <!-- Controls & Exit Hint -->
+            <div class="footer-hints">
+                <p class="controls-hint">Press Esc to Return to Menu</p>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,493 @@
+/* styles.css */
+/* --- Color Palette & Root Variables --- */
+:root {
+    --bg-color: #1a161c;
+    --card-bg: #2d2631;
+    --text-main: #f4ede2;
+    --text-muted: #bdae9d;
+
+    --p1-color: #3b82f6;
+    --p2-color: #ef4444;
+    --accent-gold: #f59e0b;
+
+    --arena-bg: #1e1922;
+    --green-light: #10b981;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-image: url(assets/bgArcade.jpg);
+    background-size: cover;
+    background-position: center;
+    color: var(--text-main);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.game-card {
+    background-color: var(--card-bg);
+    width: 100%;
+    max-width: 680px;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    text-align: center;
+}
+
+header h1 {
+    font-size: 2rem;
+    letter-spacing: 2px;
+    color: var(--text-main);
+    margin-bottom: 6px;
+}
+
+#status {
+    font-size: 0.95rem;
+    color: var(--accent-gold);
+    min-height: 24px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+/* --- Screen Transitions --- */
+.screen {
+    display: none;
+}
+
+.screen.active {
+    display: block;
+}
+
+.subtitle {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+}
+
+/* --- Avatar Setup Screen with Camera Viewport --- */
+.avatar-setup-grid {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-bottom: 25px;
+}
+
+.avatar-card {
+    flex: 1;
+    background-color: #1e1922;
+    padding: 16px;
+    border-radius: 12px;
+    border: 2px solid transparent;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.p1-setup { border-color: var(--p1-color); }
+.p2-setup { border-color: var(--p2-color); }
+
+.camera-viewport {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #000;
+    border: 3px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+}
+
+.camera-viewport video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1); /* Mirror camera stream */
+}
+
+.hidden-canvas {
+    display: none;
+}
+
+.stickman-preview {
+    width: 90px;
+    height: 110px;
+}
+
+.stickman-svg {
+    width: 100%;
+    height: 100%;
+}
+
+.stick-line {
+    stroke-width: 6;
+    stroke-linecap: round;
+}
+
+.p1-stroke { stroke: var(--p1-color); }
+.p2-stroke { stroke: var(--p2-color); }
+
+.head-circle {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border: 2px solid #fff;
+    overflow: hidden;
+}
+
+.upload-btn {
+    display: inline-block;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 0.85rem;
+    cursor: pointer;
+    color: #fff;
+    border: none;
+    transition: transform 0.1s ease;
+}
+
+.upload-btn:hover { transform: scale(1.05); }
+.p1-btn { background-color: var(--p1-color); }
+.p2-btn { background-color: var(--p2-color); }
+
+.primary-btn {
+    background-color: var(--accent-gold);
+    color: #1a161c;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+}
+
+.primary-btn:hover { transform: scale(1.03); }
+
+/* --- Menu Options --- */
+.menu-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 20px 0 25px;
+}
+
+.menu-btn {
+    background-color: #1e1922;
+    border: 2px solid #524958;
+    color: var(--text-muted);
+    padding: 14px;
+    border-radius: 8px;
+    font-size: 1.05rem;
+    font-weight: bold;
+    transition: all 0.15s ease;
+}
+
+.menu-btn.selected {
+    border-color: var(--accent-gold);
+    background-color: var(--accent-gold);
+    color: #1a161c;
+    transform: scale(1.02);
+}
+
+/* --- Scoreboard & Player Cards --- */
+.scoreboard {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.player-card {
+    flex: 1;
+    background-color: #1e1922;
+    padding: 12px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    border: 2px solid transparent;
+}
+
+.p1-card { border-color: var(--p1-color); }
+.p2-card { border-color: var(--p2-color); }
+
+.head-mini {
+    width: 38px;
+    height: 38px;
+    margin-bottom: 2px;
+}
+
+.player-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.p1-card .player-title { color: var(--p1-color); }
+.p2-card .player-title { color: var(--p2-color); }
+
+.key-badge {
+    background: rgba(255, 255, 255, 0.08);
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    color: var(--text-muted);
+    font-weight: 600;
+    min-height: 20px;
+}
+
+.score {
+    font-size: 2.2rem;
+    font-weight: 900;
+}
+
+.vs-divider {
+    font-weight: 800;
+    color: var(--text-muted);
+    padding: 0 15px;
+}
+
+/* --- Arena Wrapper & Countdown Overlay --- */
+.arena-wrapper {
+    position: relative;
+    width: 100%;
+    min-height: 220px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.countdown-overlay {
+    position: absolute;
+    inset: 0;
+    background-color: #1a161c;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
+.countdown-overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.countdown-label {
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+}
+
+.countdown-number {
+    font-size: 5rem;
+    font-weight: 900;
+    color: var(--accent-gold);
+    line-height: 1;
+}
+
+/* --- Active Playfield Area --- */
+.arena {
+    width: 100%;
+    height: 100%;
+    min-height: 220px;
+    background-color: var(--arena-bg);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.arena-message {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--text-main);
+}
+
+.winner-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.winner-stick {
+    width: 90px;
+    height: 110px;
+}
+
+/* Mode 1: Green Light Specifics */
+.green-light-arena {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 15px;
+}
+
+.stickman-container {
+    width: 70px;
+    height: 90px;
+    flex-shrink: 0;
+}
+
+.green-light-box {
+    flex: 1;
+    height: 140px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    font-weight: 900;
+    background-color: #3b353f;
+    color: var(--text-muted);
+    transition: background-color 0.1s ease, color 0.1s ease;
+}
+
+.green-light-box.ready {
+    background-color: var(--green-light);
+    color: #032e22;
+}
+
+/* Mode 2: Tug-of-War Specifics */
+.tug-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+}
+
+.tug-stage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    gap: 8px;
+}
+
+.tug-track {
+    flex: 1;
+    height: 28px;
+    background-color: #ff2002;
+    border-radius: 14px;
+    overflow: hidden;
+    position: relative;
+}
+
+.tug-marker {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 6px;
+    background-color: #fff;
+    z-index: 3;
+    transform: translateX(-50%);
+    box-shadow: 0 0 8px #fff;
+}
+
+.tug-fill-p1 {
+    height: 100%;
+    background: linear-gradient(90deg, var(--p1-color), #60a5fa);
+    transition: width 0.08s ease-out;
+    position: relative;
+    z-index: 2;
+}
+
+.counter-indicator {
+    font-size: 0.9rem;
+    font-weight: bold;
+    height: 20px;
+}
+
+.counter-p1 { color: var(--p1-color); }
+.counter-p2 { color: var(--p2-color); }
+
+/* Mode 3: Pattern Mash Specifics */
+.pattern-wrapper {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    gap: 15px;
+}
+
+.pattern-box {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.25);
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.stick-avatar-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 8px;
+}
+
+.mini-stick {
+    width: 35px;
+    height: 45px;
+}
+
+.pattern-title {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.arrow-sequence {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+}
+
+.arrow-key {
+    width: 36px;
+    height: 36px;
+    background: #3f3745;
+    border: 2px solid #5d5266;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.arrow-key.done {
+    background: var(--green-light);
+    border-color: var(--green-light);
+    color: #000;
+}
+
+.controls-hint {
+    margin-top: 15px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
