@@ -4,24 +4,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reflex Strike: Duel</title>
+    <title>Reflex Strike: Arcade Duel</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
 
     <div class="game-container">
+        <!-- CRT Arcade Scanline Effect -->
+        <div class="scanlines"></div>
         
         <!-- Header Section -->
         <header class="header">
-            <h1 class="game-title">REFLEX STRIKE: DUEL</h1>
-            <p id="status" class="status-message">Take photos to create custom duelists!</p>
+            <h1 class="game-title">REFLEX STRIKE</h1>
+            <div class="arcade-subhead"><span>ARCADE</span> <span>DUEL</span></div>
+            <p id="status" class="status-message">INSERT COIN • CHOOSE YOUR DUEL MODE</p>
         </header>
 
-        <!-- STEP 1: CAMERA SETUP SCREEN -->
-        <div id="avatarScreen" class="screen">
+        <!-- STEP 0: LANDING PAGE / MODE SELECTION -->
+        <div id="landingScreen" class="screen">
             <div class="screen-header">
-                <h2>Player Profile Setup</h2>
+                <h2>SELECT GAME MODE</h2>
+                <p>Pick a duel mode to test your reflexes and button-mashing speed!</p>
+            </div>
+
+            <div class="mode-cards-grid">
+                <!-- Arcade Duel Card -->
+                <div class="mode-card selected" data-mode-type="arcade">
+                    <div class="mode-badge">3 MINI-GAMES</div>
+                    <div class="mode-icon">⚡</div>
+                    <h3>ARCADE DUEL</h3>
+                    <p>Randomly cycles through Green Light Reflex, Tug-of-War Mashing, and Pattern Sequences!</p>
+                </div>
+
+                <!-- Green Light Showdown Card -->
+                <div class="mode-card" data-mode-type="greenlight">
+                    <div class="mode-badge">PURE REFLEX</div>
+                    <div class="mode-icon">🚥</div>
+                    <h3>GREEN LIGHT SHOWDOWN</h3>
+                    <p>High-stakes reaction duel! Wait for green light—first to react wins, early press fouls!</p>
+                </div>
+            </div>
+
+            <button id="startSetupBtn" class="btn primary-btn">
+                ENTER PROFILE SETUP →
+            </button>
+            <p class="hint-text">Use [A / D] or [◄ / ►] to pick mode • Press [Enter] or Click to Select</p>
+        </div>
+
+        <!-- STEP 1: CAMERA SETUP SCREEN -->
+        <div id="avatarScreen" class="screen hidden">
+            <div class="screen-header header-with-back">
+                <button id="avatarBackBtn" class="btn back-btn">◄ MODE SELECT</button>
+                <h2>PLAYER PROFILE SETUP</h2>
                 <p>Snap photos using your camera to fit onto the stickmen!</p>
             </div>
 
@@ -39,7 +74,7 @@
                         <svg id="p1PreviewSvg" viewBox="0 0 100 120"></svg>
                     </div>
 
-                    <button id="p1SnapBtn" class="btn p1-btn">📸 Snap P1 Head</button>
+                    <button id="p1SnapBtn" class="btn p1-btn">📸 SNAP P1 HEAD</button>
                 </div>
 
                 <!-- Player 2 Camera Card -->
@@ -55,23 +90,27 @@
                         <svg id="p2PreviewSvg" viewBox="0 0 100 120"></svg>
                     </div>
 
-                    <button id="p2SnapBtn" class="btn p2-btn">📸 Snap P2 Head</button>
+                    <button id="p2SnapBtn" class="btn p2-btn">📸 SNAP P2 HEAD</button>
                 </div>
             </div>
 
             <button id="confirmAvatarsBtn" class="btn primary-btn font-large">
-                Continue to Target Score →
+                CONTINUE TO TARGET SCORE →
             </button>
         </div>
 
         <!-- STEP 2: TARGET SCORE MENU SCREEN -->
         <div id="menuScreen" class="screen hidden">
-            <h2>Select Win Condition</h2>
+            <div class="screen-header header-with-back">
+                <button id="menuBackBtn" class="btn back-btn">◄ PROFILE SETUP</button>
+                <h2>SELECT TARGET SCORE</h2>
+                <p id="selectedModeSubtitle">Win Condition</p>
+            </div>
             
             <div id="scoreOptions" class="menu-options">
-                <button class="menu-btn selected" data-value="3">First to 3 Points</button>
-                <button class="menu-btn" data-value="5">First to 5 Points</button>
-                <button class="menu-btn" data-value="7">First to 7 Points</button>
+                <button class="menu-btn selected" data-value="3">FIRST TO 3 POINTS</button>
+                <button class="menu-btn" data-value="5">FIRST TO 5 POINTS</button>
+                <button class="menu-btn" data-value="7">FIRST TO 7 POINTS</button>
             </div>
 
             <p class="hint-text">Navigate with [W / S] or [▲ / ▼] • Press [Enter] or Click to Start</p>
@@ -88,7 +127,7 @@
                         <svg id="p1CardSvg" viewBox="0 0 100 100"></svg>
                     </div>
                     <span class="player-label p1-text">PLAYER 1</span>
-                    <span id="p1KeyBadge" class="key-badge">Keys: WASD</span>
+                    <span id="p1KeyBadge" class="key-badge">KEYS: WASD</span>
                     <span id="score1" class="score-num">0</span>
                 </div>
 
@@ -101,7 +140,7 @@
                         <svg id="p2CardSvg" viewBox="0 0 100 100"></svg>
                     </div>
                     <span class="player-label p2-text">PLAYER 2</span>
-                    <span id="p2KeyBadge" class="key-badge">Keys: Arrows</span>
+                    <span id="p2KeyBadge" class="key-badge">KEYS: ARROWS</span>
                     <span id="score2" class="score-num">0</span>
                 </div>
             </div>
@@ -120,7 +159,9 @@
 
             </div>
 
-            <p class="hint-text text-muted">Press [Esc] to Return to Target Score Menu</p>
+            <div class="game-footer">
+                <button id="gameBackBtn" class="btn back-btn arena-back-btn">◄ QUIT TO MENU (ESC)</button>
+            </div>
 
         </div>
 
