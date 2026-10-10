@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reflex Strike: Arcade Duel</title>
+    <title>Reflex Strike: Arcade Games</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 
@@ -25,54 +25,26 @@
         <!-- CRT Arcade Scanline Effect -->
         <div class="scanlines"></div>
 
-        <!-- Top Right Controls (Audio & Controller Mapping Toggle) -->
-        <div class="top-controls">
+        <!-- Top Left Controls (Gamepad Port Assignment) -->
+        <div class="top-left-controls">
             <button id="padSwapBtn" class="audio-btn" title="Swap Gamepad Assignment">🎮 PAD: P1=PORT1</button>
+        </div>
+
+        <!-- Top Right Controls (Audio Toggle) -->
+        <div class="top-right-controls">
             <button id="musicToggleBtn" class="audio-btn" title="Toggle Music">🎵 OFF</button>
         </div>
         
         <!-- Header Section -->
         <header class="header">
             <h1 class="game-title">REFLEX STRIKE</h1>
-            <div class="arcade-subhead"><span>ARCADE</span> <span>DUEL</span></div>
-            <p id="status" class="status-message">INSERT COIN • CHOOSE YOUR DUEL MODE</p>
+            <div class="arcade-subhead"><span>ARCADE</span> <span>GAMES</span></div>
+            <p id="status" class="status-message">SNAP PHOTOS TO CUSTOMIZE YOUR FIGHTERS!</p>
         </header>
 
-        <!-- STEP 0: LANDING PAGE / MODE SELECTION -->
-        <div id="landingScreen" class="screen">
+        <!-- STEP 0: CAMERA SETUP SCREEN (FIRST STEP NOW) -->
+        <div id="avatarScreen" class="screen">
             <div class="screen-header">
-                <h2>SELECT GAME MODE</h2>
-                <p>Pick a duel mode to test your reflexes and strategy!</p>
-            </div>
-
-            <div class="mode-cards-grid">
-                <!-- Arcade Duel Card -->
-                <div class="mode-card selected" data-mode-type="arcade">
-                    <div class="mode-badge">3 MINI-GAMES</div>
-                    <div class="mode-icon">⚡</div>
-                    <h3>ARCADE DUEL</h3>
-                    <p>Randomly cycles through Green Light Reflex, Tug-of-War Mashing, and Pattern Sequences!</p>
-                </div>
-
-                <!-- Reverse Snake Card -->
-                <div class="mode-card" data-mode-type="reversesnake">
-                    <div class="mode-badge">STRATEGY</div>
-                    <div class="mode-icon">🐍</div>
-                    <h3>REVERSE SNAKE</h3>
-                    <p>Flipped roles! Control the food and survive before the snake catches you.</p>
-                </div>
-            </div>
-
-            <button id="startSetupBtn" class="btn primary-btn">
-                ENTER PROFILE SETUP
-            </button>
-            <p class="hint-text">Use [A / D] or [◄ / ►] to pick mode • Press [Enter] or Click to Select</p>
-        </div>
-
-        <!-- STEP 1: CAMERA SETUP SCREEN -->
-        <div id="avatarScreen" class="screen hidden">
-            <div class="screen-header header-with-back">
-                <button id="avatarBackBtn" class="btn back-btn">GAME SELECT</button>
                 <h2>PLAYER PROFILE SETUP</h2>
                 <p>Snap photos using your camera to fit onto the stickmen!</p>
             </div>
@@ -118,14 +90,46 @@
             </div>
 
             <button id="confirmAvatarsBtn" class="btn primary-btn font-large">
+                CONTINUE TO MODE SELECT
+            </button>
+        </div>
+
+        <!-- STEP 1: MODE SELECTION -->
+        <div id="landingScreen" class="screen hidden">
+            <div class="screen-header header-with-back">
+                <button id="avatarBackBtn" class="btn back-btn">PROFILE SETUP</button>
+                <h2>SELECT GAME MODE</h2>
+                <p>Pick a duel mode to test your reflexes and strategy!</p>
+            </div>
+
+            <div class="mode-cards-grid">
+                <!-- Arcade Duel Card -->
+                <div class="mode-card selected" data-mode-type="arcade">
+                    <div class="mode-badge">3 MINI-GAMES</div>
+                    <div class="mode-icon">⚡</div>
+                    <h3>ARCADE DUEL</h3>
+                    <p>Randomly cycles through Green Light Reflex, Tug-of-War Mashing, and Pattern Sequences!</p>
+                </div>
+
+                <!-- Reverse Snake Card -->
+                <div class="mode-card" data-mode-type="reversesnake">
+                    <div class="mode-badge">STRATEGY</div>
+                    <div class="mode-icon">🐍</div>
+                    <h3>REVERSE SNAKE</h3>
+                    <p>Flipped roles! Control the food and survive before the snake catches you.</p>
+                </div>
+            </div>
+
+            <button id="startSetupBtn" class="btn primary-btn">
                 CONTINUE TO CONFIGURATION
             </button>
+            <p class="hint-text">Use [A / D] or [◄ / ►] to pick mode • Press [Enter] or Click to Select</p>
         </div>
 
         <!-- STEP 2: TARGET SCORE / TIMER MENU SCREEN -->
         <div id="menuScreen" class="screen hidden">
             <div class="screen-header header-with-back">
-                <button id="menuBackBtn" class="btn back-btn">PROFILE SETUP</button>
+                <button id="menuBackBtn" class="btn back-btn">GAME SELECT</button>
                 <h2 id="menuScreenTitle">SELECT MATCH CONDITION</h2>
                 <p id="selectedModeSubtitle">Win Condition</p>
             </div>
@@ -187,7 +191,6 @@
                     <p class="pause-hint">Press [P] or START to Resume</p>
                     <div class="pause-actions">
                         <button id="resumeBtn" class="btn primary-btn">RESUME MATCH</button>
-                        <button id="pauseQuitBtn" class="btn back-btn">QUIT TO MENU</button>
                     </div>
                 </div>
 

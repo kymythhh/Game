@@ -1,444 +1,435 @@
-/* ==========================================================================
-   1. OOP REVERSE SNAKE CLASSES (Encapsulation, Inheritance, Polymorphism)
-   ========================================================================== */
-
 class GameObject {
-  constructor(x, y, gridLimit) {
-    this.x = x;
-    this.y = y;
-    this.gridLimit = gridLimit;
-  }
+    constructor(x, y, gridLimit) {
+        this.x = x;
+        this.y = y;
+        this.gridLimit = gridLimit;
+    }
 
-  render(ctx, tileSize) {
-    throw new Error("render() must be implemented by child classes");
-  }
+    render(ctx, tileSize) {
+        throw new Error("render() must be implemented by child classes");
+    }
 }
 
 class Snake extends GameObject {
-  constructor(x, y, gridLimit, initialDirection = { x: 1, y: 0 }) {
-    super(x, y, gridLimit);
-    this.dir = initialDirection;
-    this.nextDir = initialDirection;
-    this.segments = [
-      { x: x, y: y },
-      { x: (x - this.dir.x + gridLimit) % gridLimit, y: (y - this.dir.y + gridLimit) % gridLimit },
-      { x: (x - this.dir.x * 2 + gridLimit) % gridLimit, y: (y - this.dir.y * 2 + gridLimit) % gridLimit }
-    ];
-    this.stunTicks = 0;
-    this.score = 0;
-  }
-
-  setDirection(direction) {
-    if (this.dir.x + direction.x !== 0 || this.dir.y + direction.y !== 0) {
-      this.nextDir = direction;
-    }
-  }
-
-  update() {
-    if (this.stunTicks > 0) {
-      this.stunTicks--;
-      return false;
+    constructor(x, y, gridLimit, initialDirection = { x: 1, y: 0 }) {
+        super(x, y, gridLimit);
+        this.dir = initialDirection;
+        this.nextDir = initialDirection;
+        this.segments = [
+            { x: x, y: y },
+            { x: (x - this.dir.x + gridLimit) % gridLimit, y: (y - this.dir.y + gridLimit) % gridLimit },
+            { x: (x - this.dir.x * 2 + gridLimit) % gridLimit, y: (y - this.dir.y * 2 + gridLimit) % gridLimit }
+        ];
+        this.stunTicks = 0;
+        this.score = 0;
     }
 
-    this.dir = { ...this.nextDir };
-    const head = {
-      x: (this.segments[0].x + this.dir.x + this.gridLimit) % this.gridLimit,
-      y: (this.segments[0].y + this.dir.y + this.gridLimit) % this.gridLimit
-    };
-
-    const hitSelf = this.segments.slice(1).some(seg => seg.x === head.x && seg.y === head.y);
-    if (hitSelf) {
-      this.stunTicks = 12;
-      return false;
-    }
-
-    this.segments.unshift(head);
-    this.x = head.x;
-    this.y = head.y;
-    return true;
-  }
-
-  occupies(x, y) {
-    return this.segments.some(seg => seg.x === x && seg.y === y);
-  }
-
-  grow() {
-    this.score += 50;
-  }
-
-  shrinkAndStun() {
-    this.score = Math.max(0, this.score - 10);
-    this.stunTicks = 15;
-    if (this.segments.length > 3) {
-      this.segments.splice(Math.max(3, this.segments.length - 3));
-    }
-  }
-
-  popTail() {
-    this.segments.pop();
-  }
-
-  render(ctx, tileSize) {
-    const isStunned = this.stunTicks > 0;
-
-    this.segments.forEach((seg, i) => {
-      const px = seg.x * tileSize;
-      const py = seg.y * tileSize;
-
-      if (i === 0) {
-        // HEAD: Emerald/Lime base with directional eye pixels
-        ctx.fillStyle = isStunned ? "#90e0ef" : "#10c946";
-        ctx.fillRect(px + 1, py + 1, tileSize - 2, tileSize - 2);
-
-        // Darker green border band
-        ctx.fillStyle = isStunned ? "#48cae4" : "#0aa335";
-        ctx.fillRect(px + 2, py + 2, tileSize - 4, 3);
-
-        // Red Eye/Tongue pixels oriented to movement direction
-        ctx.fillStyle = "#ff2233";
-        if (this.dir.x === 1) {
-          ctx.fillRect(px + tileSize - 5, py + 4, 3, 3);
-          ctx.fillRect(px + tileSize - 5, py + tileSize - 7, 3, 3);
-        } else if (this.dir.x === -1) {
-          ctx.fillRect(px + 2, py + 4, 3, 3);
-          ctx.fillRect(px + 2, py + tileSize - 7, 3, 3);
-        } else if (this.dir.y === -1) {
-          ctx.fillRect(px + 4, py + 2, 3, 3);
-          ctx.fillRect(px + tileSize - 7, py + 2, 3, 3);
-        } else {
-          ctx.fillRect(px + 4, py + tileSize - 5, 3, 3);
-          ctx.fillRect(px + tileSize - 7, py + tileSize - 5, 3, 3);
+    setDirection(direction) {
+        if (this.dir.x + direction.x !== 0 || this.dir.y + direction.y !== 0) {
+            this.nextDir = direction;
         }
-      } else if (i === this.segments.length - 1) {
-        // TAIL: Deep blue tapered tip
-        ctx.fillStyle = isStunned ? "#0077b6" : "#1a60e0";
-        ctx.fillRect(px + 4, py + 4, tileSize - 8, tileSize - 8);
-      } else {
-        // BODY: Alternating green outer scales + central cyan/blue spine
-        const ratio = i / this.segments.length;
-        ctx.fillStyle = (i % 2 === 0) ? "#12bd45" : "#0da83c";
-        ctx.fillRect(px + 1, py + 1, tileSize - 2, tileSize - 2);
+    }
 
-        ctx.fillStyle = ratio > 0.5 ? "#1a7fe0" : "#00b4d8";
-        if (this.dir.x !== 0) {
-          ctx.fillRect(px, py + Math.floor(tileSize / 2) - 2, tileSize, 4);
-        } else {
-          ctx.fillRect(px + Math.floor(tileSize / 2) - 2, py, 4, tileSize);
+    update() {
+        if (this.stunTicks > 0) {
+            this.stunTicks--;
+            return false;
         }
-      }
-    });
-  }
+
+        this.dir = { ...this.nextDir };
+        const head = {
+            x: (this.segments[0].x + this.dir.x + this.gridLimit) % this.gridLimit,
+            y: (this.segments[0].y + this.dir.y + this.gridLimit) % this.gridLimit
+        };
+
+        const hitSelf = this.segments.slice(1).some(seg => seg.x === head.x && seg.y === head.y);
+        if (hitSelf) {
+            this.stunTicks = 12;
+            return false;
+        }
+
+        this.segments.unshift(head);
+        this.x = head.x;
+        this.y = head.y;
+        return true;
+    }
+
+    occupies(x, y) {
+        return this.segments.some(seg => seg.x === x && seg.y === y);
+    }
+
+    grow() {
+        this.score += 50;
+    }
+
+    shrinkAndStun() {
+        this.score = Math.max(0, this.score - 10);
+        this.stunTicks = 15;
+        if (this.segments.length > 3) {
+            this.segments.splice(Math.max(3, this.segments.length - 3));
+        }
+    }
+
+    popTail() {
+        this.segments.pop();
+    }
+
+    render(ctx, tileSize) {
+        const isStunned = this.stunTicks > 0;
+
+        this.segments.forEach((seg, i) => {
+            const px = seg.x * tileSize;
+            const py = seg.y * tileSize;
+
+            if (i === 0) {
+                // HEAD: Emerald/Lime base with directional eye pixels
+                ctx.fillStyle = isStunned ? "#90e0ef" : "#10c946";
+                ctx.fillRect(px + 1, py + 1, tileSize - 2, tileSize - 2);
+
+                // Darker green border band
+                ctx.fillStyle = isStunned ? "#48cae4" : "#0aa335";
+                ctx.fillRect(px + 2, py + 2, tileSize - 4, 3);
+
+                // Red Eye/Tongue pixels oriented to movement direction
+                ctx.fillStyle = "#ff2233";
+                if (this.dir.x === 1) {
+                    ctx.fillRect(px + tileSize - 5, py + 4, 3, 3);
+                    ctx.fillRect(px + tileSize - 5, py + tileSize - 7, 3, 3);
+                } else if (this.dir.x === -1) {
+                    ctx.fillRect(px + 2, py + 4, 3, 3);
+                    ctx.fillRect(px + 2, py + tileSize - 7, 3, 3);
+                } else if (this.dir.y === -1) {
+                    ctx.fillRect(px + 4, py + 2, 3, 3);
+                    ctx.fillRect(px + tileSize - 7, py + 2, 3, 3);
+                } else {
+                    ctx.fillRect(px + 4, py + tileSize - 5, 3, 3);
+                    ctx.fillRect(px + tileSize - 7, py + tileSize - 5, 3, 3);
+                }
+            } else if (i === this.segments.length - 1) {
+                // TAIL: Deep blue tapered tip
+                ctx.fillStyle = isStunned ? "#0077b6" : "#1a60e0";
+                ctx.fillRect(px + 4, py + 4, tileSize - 8, tileSize - 8);
+            } else {
+                // BODY: Alternating green outer scales + central cyan/blue spine
+                const ratio = i / this.segments.length;
+                ctx.fillStyle = (i % 2 === 0) ? "#12bd45" : "#0da83c";
+                ctx.fillRect(px + 1, py + 1, tileSize - 2, tileSize - 2);
+
+                ctx.fillStyle = ratio > 0.5 ? "#1a7fe0" : "#00b4d8";
+                if (this.dir.x !== 0) {
+                    ctx.fillRect(px, py + Math.floor(tileSize / 2) - 2, tileSize, 4);
+                } else {
+                    ctx.fillRect(px + Math.floor(tileSize / 2) - 2, py, 4, tileSize);
+                }
+            }
+        });
+    }
 }
 
 class Fruit extends GameObject {
-  constructor(x, y, gridLimit) {
-    super(x, y, gridLimit);
-    this.dir = { x: 0, y: 0 };
-    this.nextDir = { x: 0, y: 0 };
-    this.score = 0;
-    this.trapsAvailable = 0;
-    this.invulnerableTicks = 0;
-  }
-
-  setDirection(direction) {
-    this.nextDir = direction;
-  }
-
-  update() {
-    this.dir = { ...this.nextDir };
-    this.x = (this.x + this.dir.x + this.gridLimit) % this.gridLimit;
-    this.y = (this.y + this.dir.y + this.gridLimit) % this.gridLimit;
-
-    if (this.invulnerableTicks > 0) {
-      this.invulnerableTicks--;
+    constructor(x, y, gridLimit) {
+        super(x, y, gridLimit);
+        this.dir = { x: 0, y: 0 };
+        this.nextDir = { x: 0, y: 0 };
+        this.score = 0;
+        this.trapsAvailable = 0;
+        this.invulnerableTicks = 0;
     }
-  }
 
-  respawn(forbiddenCheck = () => false) {
-    let candidate;
-    let attempts = 0;
-    do {
-      candidate = {
-        x: Math.floor(Math.random() * this.gridLimit),
-        y: Math.floor(Math.random() * this.gridLimit)
-      };
-      attempts++;
-    } while (forbiddenCheck(candidate.x, candidate.y) && attempts < 100);
+    setDirection(direction) {
+        this.nextDir = direction;
+    }
 
-    this.x = candidate.x;
-    this.y = candidate.y;
-    this.invulnerableTicks = 15;
-  }
+    update() {
+        this.dir = { ...this.nextDir };
+        this.x = (this.x + this.dir.x + this.gridLimit) % this.gridLimit;
+        this.y = (this.y + this.dir.y + this.gridLimit) % this.gridLimit;
 
-  collectSeed() {
-    this.score += 10;
-    this.trapsAvailable++;
-  }
+        if (this.invulnerableTicks > 0) {
+            this.invulnerableTicks--;
+        }
+    }
 
-  createTrap() {
-    if (this.trapsAvailable <= 0) return null;
-    this.trapsAvailable--;
-    return new Trap(this.x, this.y, this.gridLimit, 150);
-  }
+    respawn(forbiddenCheck = () => false) {
+        let candidate;
+        let attempts = 0;
+        do {
+            candidate = {
+                x: Math.floor(Math.random() * this.gridLimit),
+                y: Math.floor(Math.random() * this.gridLimit)
+            };
+            attempts++;
+        } while (forbiddenCheck(candidate.x, candidate.y) && attempts < 100);
 
-  render(ctx, tileSize) {
-    if (this.invulnerableTicks % 4 >= 2) return;
+        this.x = candidate.x;
+        this.y = candidate.y;
+        this.invulnerableTicks = 15;
+    }
 
-    const px = this.x * tileSize;
-    const py = this.y * tileSize;
+    collectSeed() {
+        this.score += 10;
+        this.trapsAvailable++;
+    }
 
-    // PROCEDURAL PIXEL APPLE (Full-tile matching fruit.png anatomy)
-    ctx.fillStyle = "#0a0a10";
-    ctx.fillRect(px + 2, py + 4, tileSize - 4, tileSize - 5);
+    createTrap() {
+        if (this.trapsAvailable <= 0) return null;
+        this.trapsAvailable--;
+        return new Trap(this.x, this.y, this.gridLimit, 150);
+    }
 
-    ctx.fillStyle = "#d61c28";
-    ctx.fillRect(px + 3, py + 5, tileSize - 6, tileSize - 7);
+    render(ctx, tileSize) {
+        if (this.invulnerableTicks % 4 >= 2) return;
 
-    ctx.fillStyle = "#9e0d17";
-    ctx.fillRect(px + 4, py + tileSize - 4, tileSize - 8, 2);
+        const px = this.x * tileSize;
+        const py = this.y * tileSize;
 
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(px + 5, py + 7, 3, 3);
-    ctx.fillRect(px + 8, py + 8, 2, 2);
+        // PROCEDURAL PIXEL APPLE (Full-tile matching fruit.png anatomy)
+        ctx.fillStyle = "#0a0a10";
+        ctx.fillRect(px + 2, py + 4, tileSize - 4, tileSize - 5);
 
-    ctx.fillStyle = "#7a3e14";
-    ctx.fillRect(px + 9, py + 2, 2, 3);
+        ctx.fillStyle = "#d61c28";
+        ctx.fillRect(px + 3, py + 5, tileSize - 6, tileSize - 7);
 
-    ctx.fillStyle = "#2ecc71";
-    ctx.fillRect(px + 5, py + 1, 4, 3);
-    ctx.fillStyle = "#1e824c";
-    ctx.fillRect(px + 4, py + 2, 2, 2);
-  }
+        ctx.fillStyle = "#9e0d17";
+        ctx.fillRect(px + 4, py + tileSize - 4, tileSize - 8, 2);
+
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(px + 5, py + 7, 3, 3);
+        ctx.fillRect(px + 8, py + 8, 2, 2);
+
+        ctx.fillStyle = "#7a3e14";
+        ctx.fillRect(px + 9, py + 2, 2, 3);
+
+        ctx.fillStyle = "#2ecc71";
+        ctx.fillRect(px + 5, py + 1, 4, 3);
+        ctx.fillStyle = "#1e824c";
+        ctx.fillRect(px + 4, py + 2, 2, 2);
+    }
 }
 
 class Seed extends GameObject {
-  constructor(x, y, gridLimit) {
-    super(x, y, gridLimit);
-  }
+    constructor(x, y, gridLimit) {
+        super(x, y, gridLimit);
+    }
 
-  render(ctx, tileSize) {
-    const px = this.x * tileSize;
-    const py = this.y * tileSize;
+    render(ctx, tileSize) {
+        const px = this.x * tileSize;
+        const py = this.y * tileSize;
 
-    // PROCEDURAL PIXEL ORB (Full-tile matching orb.png anatomy)
-    ctx.fillStyle = "#28346e";
-    ctx.fillRect(px + 3, py + 2, tileSize - 6, tileSize - 4);
-    ctx.fillRect(px + 2, py + 3, tileSize - 4, tileSize - 6);
+        // PROCEDURAL PIXEL ORB (Full-tile matching orb.png anatomy)
+        ctx.fillStyle = "#28346e";
+        ctx.fillRect(px + 3, py + 2, tileSize - 6, tileSize - 4);
+        ctx.fillRect(px + 2, py + 3, tileSize - 4, tileSize - 6);
 
-    ctx.fillStyle = "#c2dcff";
-    ctx.fillRect(px + 4, py + 3, tileSize - 8, tileSize - 6);
-    ctx.fillRect(px + 3, py + 4, tileSize - 6, tileSize - 8);
+        ctx.fillStyle = "#c2dcff";
+        ctx.fillRect(px + 4, py + 3, tileSize - 8, tileSize - 6);
+        ctx.fillRect(px + 3, py + 4, tileSize - 6, tileSize - 8);
 
-    ctx.fillStyle = "#7aa7e8";
-    ctx.fillRect(px + 4, py + tileSize - 5, tileSize - 8, 2);
+        ctx.fillStyle = "#7aa7e8";
+        ctx.fillRect(px + 4, py + tileSize - 5, tileSize - 8, 2);
 
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(px + 7, py + 4, 5, 2);
-    ctx.fillRect(px + 12, py + 5, 2, 4);
-    ctx.fillRect(px + 13, py + 7, 2, 3);
-    ctx.fillRect(px + 8, py + tileSize - 5, 4, 2);
-  }
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(px + 7, py + 4, 5, 2);
+        ctx.fillRect(px + 12, py + 5, 2, 4);
+        ctx.fillRect(px + 13, py + 7, 2, 3);
+        ctx.fillRect(px + 8, py + tileSize - 5, 4, 2);
+    }
 }
 
 class Trap extends GameObject {
-  constructor(x, y, gridLimit, duration = 150) {
-    super(x, y, gridLimit);
-    this.duration = duration;
-  }
+    constructor(x, y, gridLimit, duration = 150) {
+        super(x, y, gridLimit);
+        this.duration = duration;
+    }
 
-  update() {
-    this.duration--;
-    return this.duration > 0;
-  }
+    update() {
+        this.duration--;
+        return this.duration > 0;
+    }
 
-  render(ctx, tileSize) {
-    const px = this.x * tileSize;
-    const py = this.y * tileSize;
+    render(ctx, tileSize) {
+        const px = this.x * tileSize;
+        const py = this.y * tileSize;
 
-    ctx.fillStyle = "#8338ec";
-    ctx.fillRect(px + 4, py + 4, tileSize - 8, tileSize - 8);
+        ctx.fillStyle = "#8338ec";
+        ctx.fillRect(px + 4, py + 4, tileSize - 8, tileSize - 8);
 
-    ctx.strokeStyle = "#c77dff";
-    ctx.lineWidth = 1;
-    ctx.strokeRect(px + 2, py + 2, tileSize - 4, tileSize - 4);
-  }
+        ctx.strokeStyle = "#c77dff";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(px + 2, py + 2, tileSize - 4, tileSize - 4);
+    }
 }
 
 class ReverseSnakeGameManager {
-  constructor(canvas, trapDisplayEl, onScoreUpdate, onRoundEnd) {
-    this.canvas = canvas;
-    this.ctx = canvas.getContext("2d");
-    this.trapDisplayEl = trapDisplayEl;
-    this.onScoreUpdate = onScoreUpdate;
-    this.onRoundEnd = onRoundEnd;
+    constructor(canvas, trapDisplayEl, onScoreUpdate, onRoundEnd) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext("2d");
+        this.trapDisplayEl = trapDisplayEl;
+        this.onScoreUpdate = onScoreUpdate;
+        this.onRoundEnd = onRoundEnd;
 
-    this.tileSize = 20;
-    this.gridLimit = Math.floor(canvas.width / this.tileSize);
+        this.tileSize = 20;
+        this.gridLimit = Math.floor(canvas.width / this.tileSize);
 
-    this.snake = null;
-    this.fruit = null;
-    this.seeds = [];
-    this.traps = [];
+        this.snake = null;
+        this.fruit = null;
+        this.seeds = [];
+        this.traps = [];
 
-    this.init();
-  }
-
-  init() {
-    const snakeHead = {
-      x: Math.floor(Math.random() * (this.gridLimit - 6)) + 3,
-      y: Math.floor(Math.random() * (this.gridLimit - 6)) + 3
-    };
-    const directions = [
-      { x: 1, y: 0 },
-      { x: -1, y: 0 },
-      { x: 0, y: 1 },
-      { x: 0, y: -1 }
-    ];
-    const randomSnakeDir = directions[Math.floor(Math.random() * directions.length)];
-    this.snake = new Snake(snakeHead.x, snakeHead.y, this.gridLimit, randomSnakeDir);
-
-    let fruitSpawn;
-    let attempts = 0;
-    do {
-      fruitSpawn = {
-        x: Math.floor(Math.random() * this.gridLimit),
-        y: Math.floor(Math.random() * this.gridLimit)
-      };
-      const distance = Math.hypot(fruitSpawn.x - snakeHead.x, fruitSpawn.y - snakeHead.y);
-      attempts++;
-      if (distance >= 5 && !this.snake.occupies(fruitSpawn.x, fruitSpawn.y)) {
-        break;
-      }
-    } while (attempts < 100);
-
-    this.fruit = new Fruit(fruitSpawn.x, fruitSpawn.y, this.gridLimit);
-    this.traps = [];
-    this.seeds = [];
-    this.spawnSeeds(3);
-
-    this.updateHUD();
-    this.render();
-  }
-
-  spawnSeeds(targetCount) {
-    while (this.seeds.length < targetCount) {
-      const candidate = {
-        x: Math.floor(Math.random() * this.gridLimit),
-        y: Math.floor(Math.random() * this.gridLimit)
-      };
-
-      const collidesWithSnake = this.snake.occupies(candidate.x, candidate.y);
-      const collidesWithFruit = this.fruit.x === candidate.x && this.fruit.y === candidate.y;
-      const collidesWithTraps = this.traps.some(t => t.x === candidate.x && t.y === candidate.y);
-
-      if (!collidesWithSnake && !collidesWithFruit && !collidesWithTraps) {
-        this.seeds.push(new Seed(candidate.x, candidate.y, this.gridLimit));
-      }
-    }
-  }
-
-  step() {
-    this.fruit.update();
-
-    const seedIndex = this.seeds.findIndex(s => s.x === this.fruit.x && s.y === this.fruit.y);
-    if (seedIndex !== -1) {
-      this.seeds.splice(seedIndex, 1);
-      this.fruit.collectSeed();
-      this.spawnSeeds(3);
+        this.init();
     }
 
-    const moved = this.snake.update();
+    init() {
+        const snakeHead = {
+            x: Math.floor(Math.random() * (this.gridLimit - 6)) + 3,
+            y: Math.floor(Math.random() * (this.gridLimit - 6)) + 3
+        };
+        const directions = [
+            { x: 1, y: 0 },
+            { x: -1, y: 0 },
+            { x: 0, y: 1 },
+            { x: 0, y: -1 }
+        ];
+        const randomSnakeDir = directions[Math.floor(Math.random() * directions.length)];
+        this.snake = new Snake(snakeHead.x, snakeHead.y, this.gridLimit, randomSnakeDir);
 
-    let caughtFruit = false;
-    if (this.fruit.invulnerableTicks === 0 && this.snake.occupies(this.fruit.x, this.fruit.y)) {
-      this.snake.grow();
-      this.fruit.respawn((rx, ry) => this.snake.occupies(rx, ry));
-      caughtFruit = true;
-    }
+        let fruitSpawn;
+        let attempts = 0;
+        do {
+            fruitSpawn = {
+                x: Math.floor(Math.random() * this.gridLimit),
+                y: Math.floor(Math.random() * this.gridLimit)
+            };
+            const distance = Math.hypot(fruitSpawn.x - snakeHead.x, fruitSpawn.y - snakeHead.y);
+            attempts++;
+            if (distance >= 5 && !this.snake.occupies(fruitSpawn.x, fruitSpawn.y)) {
+                break;
+            }
+        } while (attempts < 100);
 
-    if (moved && !caughtFruit) {
-      this.snake.popTail();
-    }
+        this.fruit = new Fruit(fruitSpawn.x, fruitSpawn.y, this.gridLimit);
+        this.traps = [];
+        this.seeds = [];
+        this.spawnSeeds(3);
 
-    if (moved) {
-      const trapHitIndex = this.traps.findIndex(t => t.x === this.snake.x && t.y === this.snake.y);
-      if (trapHitIndex !== -1) {
-        this.traps.splice(trapHitIndex, 1);
-        this.fruit.score += 20;
-        this.snake.shrinkAndStun();
-      }
-    }
-
-    this.traps = this.traps.filter(trap => trap.update());
-
-    this.updateHUD();
-    this.render();
-  }
-
-  render() {
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-    this.ctx.strokeStyle = "rgba(30, 41, 93, 0.4)";
-    for (let i = 0; i < this.canvas.width; i += this.tileSize) {
-      this.ctx.beginPath();
-      this.ctx.moveTo(i, 0);
-      this.ctx.lineTo(i, this.canvas.height);
-      this.ctx.stroke();
-      this.ctx.beginPath();
-      this.ctx.moveTo(0, i);
-      this.ctx.lineTo(this.canvas.width, i);
-      this.ctx.stroke();
-    }
-
-    this.seeds.forEach(seed => seed.render(this.ctx, this.tileSize));
-    this.traps.forEach(trap => trap.render(this.ctx, this.tileSize));
-    this.snake.render(this.ctx, this.tileSize);
-    this.fruit.render(this.ctx, this.tileSize);
-  }
-
-  updateHUD() {
-    if (this.trapDisplayEl) {
-      this.trapDisplayEl.textContent = `P2 TRAPS: ${this.fruit.trapsAvailable}`;
-    }
-    if (this.onScoreUpdate) {
-      this.onScoreUpdate(this.snake.score, this.fruit.score);
-    }
-  }
-
-  handleInput(key) {
-    if (key === 'w') this.snake.setDirection({ x: 0, y: -1 });
-    if (key === 's') this.snake.setDirection({ x: 0, y: 1 });
-    if (key === 'a') this.snake.setDirection({ x: -1, y: 0 });
-    if (key === 'd') this.snake.setDirection({ x: 1, y: 0 });
-
-    if (key === 'arrowup') this.fruit.setDirection({ x: 0, y: -1 });
-    if (key === 'arrowdown') this.fruit.setDirection({ x: 0, y: 1 });
-    if (key === 'arrowleft') this.fruit.setDirection({ x: -1, y: 0 });
-    if (key === 'arrowright') this.fruit.setDirection({ x: 1, y: 0 });
-
-    if (key === 'shift' || key === 'enter') {
-      const newTrap = this.fruit.createTrap();
-      if (newTrap) {
-        this.traps.push(newTrap);
         this.updateHUD();
-      }
+        this.render();
     }
-  }
+
+    spawnSeeds(targetCount) {
+        while (this.seeds.length < targetCount) {
+            const candidate = {
+                x: Math.floor(Math.random() * this.gridLimit),
+                y: Math.floor(Math.random() * this.gridLimit)
+            };
+
+            const collidesWithSnake = this.snake.occupies(candidate.x, candidate.y);
+            const collidesWithFruit = this.fruit.x === candidate.x && this.fruit.y === candidate.y;
+            const collidesWithTraps = this.traps.some(t => t.x === candidate.x && t.y === candidate.y);
+
+            if (!collidesWithSnake && !collidesWithFruit && !collidesWithTraps) {
+                this.seeds.push(new Seed(candidate.x, candidate.y, this.gridLimit));
+            }
+        }
+    }
+
+    step() {
+        this.fruit.update();
+
+        const seedIndex = this.seeds.findIndex(s => s.x === this.fruit.x && s.y === this.fruit.y);
+        if (seedIndex !== -1) {
+            this.seeds.splice(seedIndex, 1);
+            this.fruit.collectSeed();
+            this.spawnSeeds(3);
+        }
+
+        const moved = this.snake.update();
+
+        let caughtFruit = false;
+        if (this.fruit.invulnerableTicks === 0 && this.snake.occupies(this.fruit.x, this.fruit.y)) {
+            this.snake.grow();
+            this.fruit.respawn((rx, ry) => this.snake.occupies(rx, ry));
+            caughtFruit = true;
+        }
+
+        if (moved && !caughtFruit) {
+            this.snake.popTail();
+        }
+
+        if (moved) {
+            const trapHitIndex = this.traps.findIndex(t => t.x === this.snake.x && t.y === this.snake.y);
+            if (trapHitIndex !== -1) {
+                this.traps.splice(trapHitIndex, 1);
+                this.fruit.score += 20;
+                this.snake.shrinkAndStun();
+            }
+        }
+
+        this.traps = this.traps.filter(trap => trap.update());
+
+        this.updateHUD();
+        this.render();
+    }
+
+    render() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        this.ctx.strokeStyle = "rgba(30, 41, 93, 0.4)";
+        for (let i = 0; i < this.canvas.width; i += this.tileSize) {
+            this.ctx.beginPath();
+            this.ctx.moveTo(i, 0);
+            this.ctx.lineTo(i, this.canvas.height);
+            this.ctx.stroke();
+            this.ctx.beginPath();
+            this.ctx.moveTo(0, i);
+            this.ctx.lineTo(this.canvas.width, i);
+            this.ctx.stroke();
+        }
+
+        this.seeds.forEach(seed => seed.render(this.ctx, this.tileSize));
+        this.traps.forEach(trap => trap.render(this.ctx, this.tileSize));
+        this.snake.render(this.ctx, this.tileSize);
+        this.fruit.render(this.ctx, this.tileSize);
+    }
+
+    updateHUD() {
+        if (this.trapDisplayEl) {
+            this.trapDisplayEl.textContent = `P2 TRAPS: ${this.fruit.trapsAvailable}`;
+        }
+        if (this.onScoreUpdate) {
+            this.onScoreUpdate(this.snake.score, this.fruit.score);
+        }
+    }
+
+    handleInput(key) {
+        if (key === 'w') this.snake.setDirection({ x: 0, y: -1 });
+        if (key === 's') this.snake.setDirection({ x: 0, y: 1 });
+        if (key === 'a') this.snake.setDirection({ x: -1, y: 0 });
+        if (key === 'd') this.snake.setDirection({ x: 1, y: 0 });
+
+        if (key === 'arrowup') this.fruit.setDirection({ x: 0, y: -1 });
+        if (key === 'arrowdown') this.fruit.setDirection({ x: 0, y: 1 });
+        if (key === 'arrowleft') this.fruit.setDirection({ x: -1, y: 0 });
+        if (key === 'arrowright') this.fruit.setDirection({ x: 1, y: 0 });
+
+        if (key === 'shift' || key === 'enter') {
+            const newTrap = this.fruit.createTrap();
+            if (newTrap) {
+                this.traps.push(newTrap);
+                this.updateHUD();
+            }
+        }
+    }
 }
 
-/* ==========================================================================
-   2. APP STATE, AVATARS & CONTROLLER MAPPING
-   ========================================================================== */
-let currentScreen = 'landing';
+let currentScreen = 'avatar';
 let selectedGameMode = 'arcade';
 let selectedMenuIndex = 0;
 let targetScore = 3;
 let cameraStream = null;
 
-// Controller Swap: false = P1 is Pad 0, P2 is Pad 1; true = P1 is Pad 1, P2 is Pad 0
 let swapControllers = false;
 
-// Pause State
 let isGamePaused = false;
 
 let p1HeadSrc = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%2300f0ff'/><circle cx='35' cy='40' r='8' fill='%23000'/><circle cx='65' cy='40' r='8' fill='%23000'/><circle cx='35' cy='40' r='3' fill='%23fff'/><circle cx='65' cy='40' r='3' fill='%23fff'/><path d='M 30 70 Q 50 85 70 70' stroke='%23000' stroke-width='6' fill='none'/></svg>";
@@ -450,7 +441,6 @@ let roundActive = false;
 let currentMode = null;
 let countdownTimerObj = null;
 
-// Arcade Mini-Games Variables
 let isGreenLightReady = false;
 let greenLightTimer = null;
 let tugPosition = 50;
@@ -463,16 +453,12 @@ let p2Pattern = [];
 let p1Index = 0;
 let p2Index = 0;
 
-// Reverse Snake Engine Variables
 let snakeGameInstance = null;
 let snakeGameLoopInterval = null;
 let snakeRoundTimerInterval = null;
 let snakePassiveInterval = null;
 let snakeTimeRemaining = 60;
 
-/* ==========================================================================
-   3. DOM REFERENCES & AUDIO CONTROLS
-   ========================================================================== */
 const landingScreen = document.getElementById('landingScreen');
 const avatarScreen = document.getElementById('avatarScreen');
 const menuScreen = document.getElementById('menuScreen');
@@ -507,7 +493,6 @@ const countdownLabel = document.getElementById('countdownLabel');
 const pauseOverlay = document.getElementById('pauseOverlay');
 const pauseBtn = document.getElementById('pauseBtn');
 const resumeBtn = document.getElementById('resumeBtn');
-const pauseQuitBtn = document.getElementById('pauseQuitBtn');
 
 const playfieldContent = document.getElementById('playfieldContent');
 const statusText = document.getElementById('status');
@@ -526,13 +511,13 @@ const musicToggleBtn = document.getElementById('musicToggleBtn');
 
 function playClick() {
     clickSound.currentTime = 0;
-    clickSound.play().catch(() => {});
+    clickSound.play().catch(() => { });
 }
 
 function playWin() {
     bgMusic.volume = 0.2;
     winSound.currentTime = 0;
-    winSound.play().catch(() => {});
+    winSound.play().catch(() => { });
 }
 
 function updateMusicUI() {
@@ -550,7 +535,7 @@ musicToggleBtn.addEventListener('click', (e) => {
     playClick();
 
     if (bgMusic.paused) {
-        bgMusic.volume = 1.0;
+        bgMusic.volume = 1.0;goToMenu
         bgMusic.play().then(updateMusicUI).catch(err => console.warn(err));
     } else {
         bgMusic.pause();
@@ -593,9 +578,11 @@ document.querySelectorAll('button, .mode-card').forEach(item => {
     });
 });
 
-/* ==========================================================================
-   4. PAUSE SYSTEM
-   ========================================================================== */
+window.addEventListener('DOMContentLoaded', () => {
+    initWebcam();
+    updateAvatarDisplays();
+});
+
 function togglePauseGame() {
     if (currentScreen !== 'game' || !roundActive) return;
 
@@ -607,36 +594,57 @@ function togglePauseGame() {
         statusText.textContent = "MATCH PAUSED";
     } else {
         pauseOverlay.classList.add('hidden');
-        statusText.textContent = selectedGameMode === 'reversesnake' 
-            ? "MODE: REVERSE SNAKE • SURVIVE UNTIL THE TIMER ENDS!" 
+        statusText.textContent = selectedGameMode === 'reversesnake'
+            ? "MODE: REVERSE SNAKE • SURVIVE UNTIL THE TIMER ENDS!"
             : `MODE: ${currentMode.toUpperCase()}`;
     }
 }
 
 pauseBtn.addEventListener('click', togglePauseGame);
 resumeBtn.addEventListener('click', togglePauseGame);
-pauseQuitBtn.addEventListener('click', () => {
-    togglePauseGame();
-    quitGameToMenu();
-});
 
-/* ==========================================================================
-   5. LANDING PAGE & MODE SELECTION
-   ========================================================================== */
 modeCards.forEach((card) => {
     card.addEventListener('click', () => {
         modeCards.forEach(c => c.classList.remove('selected'));
         card.classList.add('selected');
         selectedGameMode = card.dataset.modeType;
-        statusText.textContent = selectedGameMode === 'arcade' 
-            ? "ARCADE MODE: CYCLE THROUGH 3 MINI-GAMES!" 
+        statusText.textContent = selectedGameMode === 'arcade'
+            ? "ARCADE MODE: CYCLE THROUGH 3 MINI-GAMES!"
             : "REVERSE SNAKE MODE: TIMED SURVIVAL SHOWDOWN!";
     });
 });
 
 startSetupBtn.addEventListener('click', () => {
-    goToAvatarSetup();
+    goToMenuScreen();
 });
+
+function goToMenuScreen() {
+    landingScreen.classList.add('hidden');
+    menuScreen.classList.remove('hidden');
+    currentScreen = 'menu';
+
+    if (selectedGameMode === 'reversesnake') {
+        menuScreenTitle.textContent = "SELECT ROUND TIMER";
+        selectedModeSubtitle.textContent = "Timed Arena Survival Match";
+        scoreOptionsContainer.innerHTML = `
+            <button class="menu-btn" data-value="30">30 SECONDS BLITZ</button>
+            <button class="menu-btn selected" data-value="60">60 SECONDS (1 MIN)</button>
+            <button class="menu-btn" data-value="90">90 SECONDS ENDURANCE</button>
+        `;
+    } else {
+        menuScreenTitle.textContent = "SELECT TARGET SCORE";
+        selectedModeSubtitle.textContent = "Arcade Mode (3 Mini-Games)";
+        scoreOptionsContainer.innerHTML = `
+            <button class="menu-btn selected" data-value="3">FIRST TO 3 POINTS</button>
+            <button class="menu-btn" data-value="5">FIRST TO 5 POINTS</button>
+            <button class="menu-btn" data-value="7">FIRST TO 7 POINTS</button>
+        `;
+    }
+
+    selectedMenuIndex = 1;
+    bindMenuButtons();
+    statusText.textContent = 'NAVIGATE WITH [W / S] • SELECT WITH [ENTER / A]';
+}
 
 function goToAvatarSetup() {
     landingScreen.classList.add('hidden');
@@ -648,23 +656,19 @@ function goToAvatarSetup() {
     updatePadUI();
 }
 
-/* ==========================================================================
-   6. BACK BUTTON HANDLERS
-   ========================================================================== */
 avatarBackBtn.addEventListener('click', () => {
-    stopCamera();
-    avatarScreen.classList.add('hidden');
-    landingScreen.classList.remove('hidden');
-    currentScreen = 'landing';
-    statusText.textContent = 'INSERT COIN • CHOOSE YOUR DUEL MODE';
-});
-
-menuBackBtn.addEventListener('click', () => {
-    menuScreen.classList.add('hidden');
+    landingScreen.classList.add('hidden');
     avatarScreen.classList.remove('hidden');
     currentScreen = 'avatar';
     statusText.textContent = 'SNAP PHOTOS TO CUSTOMIZE YOUR FIGHTERS!';
     initWebcam();
+});
+
+menuBackBtn.addEventListener('click', () => {
+    menuScreen.classList.add('hidden');
+    landingScreen.classList.remove('hidden');
+    currentScreen = 'landing';
+    statusText.textContent = 'CHOOSE YOUR DUEL MODE!';
 });
 
 gameBackBtn.addEventListener('click', () => {
@@ -690,9 +694,6 @@ function stopSnakeLoops() {
     clearInterval(snakePassiveInterval);
 }
 
-/* ==========================================================================
-   7. SVG AVATARS & WEBCAM
-   ========================================================================== */
 let clipIdCounter = 0;
 
 function getHeadOnlySVG(player) {
@@ -753,9 +754,9 @@ function getStickmanSVG(player, pose = 'idle') {
 
 async function initWebcam() {
     try {
-        cameraStream = await navigator.mediaDevices.getUserMedia({ 
-            video: { width: { ideal: 300 }, height: { ideal: 300 }, facingMode: "user" }, 
-            audio: false 
+        cameraStream = await navigator.mediaDevices.getUserMedia({
+            video: { width: { ideal: 300 }, height: { ideal: 300 }, facingMode: "user" },
+            audio: false
         });
         p1Video.srcObject = cameraStream;
         p2Video.srcObject = cameraStream;
@@ -822,30 +823,9 @@ confirmAvatarsBtn.addEventListener('click', () => {
 function confirmAvatarSelection() {
     stopCamera();
     avatarScreen.classList.add('hidden');
-    menuScreen.classList.remove('hidden');
-    currentScreen = 'menu';
-
-    if (selectedGameMode === 'reversesnake') {
-        menuScreenTitle.textContent = "SELECT ROUND TIMER";
-        selectedModeSubtitle.textContent = "Timed Arena Survival Match";
-        scoreOptionsContainer.innerHTML = `
-            <button class="menu-btn" data-value="30">30 SECONDS BLITZ</button>
-            <button class="menu-btn selected" data-value="60">60 SECONDS (1 MIN)</button>
-            <button class="menu-btn" data-value="90">90 SECONDS ENDURANCE</button>
-        `;
-    } else {
-        menuScreenTitle.textContent = "SELECT TARGET SCORE";
-        selectedModeSubtitle.textContent = "Arcade Mode (3 Mini-Games)";
-        scoreOptionsContainer.innerHTML = `
-            <button class="menu-btn selected" data-value="3">FIRST TO 3 POINTS</button>
-            <button class="menu-btn" data-value="5">FIRST TO 5 POINTS</button>
-            <button class="menu-btn" data-value="7">FIRST TO 7 POINTS</button>
-        `;
-    }
-
-    selectedMenuIndex = 1;
-    bindMenuButtons();
-    statusText.textContent = 'NAVIGATE WITH [W / S] • SELECT WITH [ENTER / A]';
+    landingScreen.classList.remove('hidden');
+    currentScreen = 'landing';
+    statusText.textContent = 'CHOOSE YOUR DUEL MODE!';
 }
 
 function bindMenuButtons() {
@@ -881,9 +861,6 @@ function updateMenuSelection() {
     });
 }
 
-/* ==========================================================================
-   8. CONTROLLER / GAMEPAD API SUPPORT WITH DYNAMIC PORT ROUTING
-   ========================================================================== */
 let prevPadState = {};
 
 function pollGamepads() {
@@ -891,7 +868,6 @@ function pollGamepads() {
     const activePads = Array.from(gamepads).filter(gp => gp !== null && gp.connected);
 
     activePads.forEach((gp) => {
-        // Evaluate dynamic port assignment based on swap state
         let playerNum = (gp.index === 0) ? 1 : 2;
         if (swapControllers) {
             playerNum = (gp.index === 0) ? 2 : 1;
@@ -919,7 +895,6 @@ function processGamepadInput(gp, playerNum) {
     const start = (gp.buttons[9] && gp.buttons[9].pressed);
     const select = (gp.buttons[8] && gp.buttons[8].pressed);
 
-    // Select button triggers Gamepad port swap globally
     if (select && !prev.select) {
         toggleControllerAssignment();
     }
@@ -987,9 +962,6 @@ function processGamepadInput(gp, playerNum) {
 }
 requestAnimationFrame(pollGamepads);
 
-/* ==========================================================================
-   9. KEYBOARD ROUTING
-   ========================================================================== */
 window.addEventListener('keydown', (e) => {
     const key = e.key.toLowerCase();
     if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', ' '].includes(key)) {
@@ -1001,17 +973,22 @@ window.addEventListener('keydown', (e) => {
         return;
     }
 
-    if (currentScreen === 'landing') {
-        if (key === 'a' || key === 'arrowleft' || key === 'd' || key === 'arrowright') {
-            selectedGameMode = selectedGameMode === 'arcade' ? 'reversesnake' : 'arcade';
-            modeCards.forEach(c => c.classList.toggle('selected', c.dataset.modeType === selectedGameMode));
-        } else if (key === 'enter') {
-            goToAvatarSetup();
+    if (currentScreen === 'avatar') {
+        if (action && !prev.action) {
+            if (playerNum === 1) p1SnapBtn.click();
+            else p2SnapBtn.click();
         }
-    } else if (currentScreen === 'menu') {
-        handleMenuNavigation(key);
-    } else if (currentScreen === 'game') {
-        handleGameInput(key);
+        if (start && !prev.start) {
+            confirmAvatarSelection();
+        }
+    } else if (currentScreen === 'landing') {
+        if ((left && !prev.left) || (right && !prev.right)) {
+            selectedGameMode = selectedGameMode === 'arcade' ? 'greenlight' : 'arcade';
+            modeCards.forEach(c => c.classList.toggle('selected', c.dataset.modeType === selectedGameMode));
+        }
+        if ((action && !prev.action) || (start && !prev.start)) {
+            goToMenuScreen();
+        }
     }
 });
 
@@ -1032,9 +1009,6 @@ function handleGameInput(key) {
     }
 }
 
-/* ==========================================================================
-   10. MATCH & ROUND FLOW
-   ========================================================================== */
 function startGame() {
     p1Score = 0;
     p2Score = 0;
@@ -1056,9 +1030,6 @@ function startGame() {
     }
 }
 
-/* ==========================================================================
-   11. REVERSE SNAKE INTEGRATION
-   ========================================================================== */
 function setupReverseSnakeMatch() {
     roundActive = false;
     isGamePaused = false;
@@ -1182,9 +1153,6 @@ function endReverseSnakeMatch() {
     }, 4000);
 }
 
-/* ==========================================================================
-   12. ARCADE ROUND CYCLING (GREEN LIGHT, TUG, PATTERN)
-   ========================================================================== */
 function initiateNextRoundCountdown() {
     roundActive = false;
     isGamePaused = false;
@@ -1415,7 +1383,7 @@ function awardPoint(winner, message) {
         setTimeout(() => {
             bgMusic.volume = 1.0;
             gameScreen.classList.add('hidden');
-            landingScreen.classList.remove('hidden');
+            avatarScreen.classList.remove('hidden');
             currentScreen = 'landing';
             statusText.textContent = 'INSERT COIN • CHOOSE YOUR DUEL MODE';
         }, 3500);

@@ -35,7 +35,6 @@ body {
     padding: 16px;
 }
 
-/* Container & Scanline Effect */
 .game-container {
     width: 100%;
     max-width: 680px;
@@ -66,8 +65,16 @@ body {
     opacity: 0.6;
 }
 
-/* Top Right Audio & Pad Controls */
-.top-controls {
+.top-left-controls {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    z-index: 30;
+    display: flex;
+    gap: 8px;
+}
+
+.top-right-controls {
     position: absolute;
     top: 16px;
     right: 16px;
@@ -101,8 +108,8 @@ body {
     box-shadow: none;
 }
 
-/* Header & Typography */
 .header {
+    margin-top: 18px;
     margin-bottom: 20px;
 }
 
@@ -145,7 +152,6 @@ body {
     letter-spacing: 1px;
 }
 
-/* Utilities */
 .hidden {
     display: none !important;
 }
@@ -179,7 +185,6 @@ body {
     stroke-linejoin: round;
 }
 
-/* Screen Layouts */
 .screen {
     display: flex;
     flex-direction: column;
@@ -209,7 +214,6 @@ body {
     gap: 10px;
 }
 
-/* Mode Cards */
 .mode-cards-grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -277,7 +281,6 @@ body {
     line-height: 1.4;
 }
 
-/* Avatar Setup Screen */
 .setup-grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -353,7 +356,6 @@ body {
     height: 100%;
 }
 
-/* Arcade Buttons Base */
 .btn {
     font-family: 'Press Start 2P', cursive;
     font-size: 0.65rem;
@@ -411,7 +413,6 @@ body {
     transform: translateY(-2px);
 }
 
-/* Back / Secondary Buttons */
 .back-btn {
     font-size: 0.55rem;
     background-color: rgba(30, 41, 93, 0.4);
@@ -433,7 +434,6 @@ body {
     align-self: center;
 }
 
-/* Target Score / Config Options */
 .menu-options {
     display: flex;
     flex-direction: column;
@@ -486,7 +486,6 @@ body {
     color: var(--text-muted);
 }
 
-/* Game Arena & Scoreboard */
 .scoreboard {
     display: grid;
     grid-template-columns: 2fr 1fr 2fr;
@@ -589,7 +588,6 @@ body {
     gap: 12px;
 }
 
-/* Round Countdown Overlay */
 .countdown-overlay {
     position: absolute;
     inset: 0;
@@ -616,7 +614,6 @@ body {
     text-shadow: 0 0 20px rgba(0, 240, 255, 0.8);
 }
 
-/* Pause Overlay */
 .pause-overlay {
     position: absolute;
     inset: 0;
@@ -656,7 +653,6 @@ body {
     justify-content: center;
 }
 
-/* Reverse Snake Canvas & Live Arena HUD */
 .snake-arena-wrapper {
     display: flex;
     flex-direction: column;
@@ -681,7 +677,6 @@ body {
     text-shadow: 0 0 8px rgba(244, 211, 94, 0.6);
 }
 
-/* Green Light Animations */
 @keyframes pulse-ready {
     0%,
     100% {
