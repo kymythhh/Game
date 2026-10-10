@@ -535,7 +535,7 @@ musicToggleBtn.addEventListener('click', (e) => {
     playClick();
 
     if (bgMusic.paused) {
-        bgMusic.volume = 1.0;goToMenu
+        bgMusic.volume = 1.0;
         bgMusic.play().then(updateMusicUI).catch(err => console.warn(err));
     } else {
         bgMusic.pause();
@@ -566,6 +566,14 @@ function updatePadUI() {
 padSwapBtn.addEventListener('click', toggleControllerAssignment);
 
 function handleFirstUserGesture() {
+    if (bgMusic.paused) {
+        bgMusic.volume = 1.0;
+        bgMusic.play().then(() => {
+            updateMusicUI();
+        }).catch(err => {
+            console.warn("Autoplay prevented:", err);
+        });
+    }
     window.removeEventListener('pointerdown', handleFirstUserGesture);
     window.removeEventListener('keydown', handleFirstUserGesture);
 }
