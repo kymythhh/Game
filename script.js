@@ -968,7 +968,6 @@ function processGamepadInput(gp, playerNum) {
 
     prevPadState[padId] = { up, down, left, right, action, start, select };
 }
-requestAnimationFrame(pollGamepads);
 
 window.addEventListener('keydown', (e) => {
     const key = e.key.toLowerCase();
@@ -982,21 +981,17 @@ window.addEventListener('keydown', (e) => {
     }
 
     if (currentScreen === 'avatar') {
-        if (action && !prev.action) {
-            if (playerNum === 1) p1SnapBtn.click();
-            else p2SnapBtn.click();
-        }
-        if (start && !prev.start) {
-            confirmAvatarSelection();
-        }
+        if (key === 'enter') confirmAvatarSelection();
     } else if (currentScreen === 'landing') {
-        if ((left && !prev.left) || (right && !prev.right)) {
-            selectedGameMode = selectedGameMode === 'arcade' ? 'greenlight' : 'arcade';
+        if (key === 'a' || key === 'arrowleft' || key === 'd' || key === 'arrowright') {
+            selectedGameMode = selectedGameMode === 'arcade' ? 'reversesnake' : 'arcade';
             modeCards.forEach(c => c.classList.toggle('selected', c.dataset.modeType === selectedGameMode));
         }
-        if ((action && !prev.action) || (start && !prev.start)) {
-            goToMenuScreen();
-        }
+        if (key === 'enter') goToMenuScreen();
+    } else if (currentScreen === 'menu') {
+        handleMenuNavigation(key);
+    } else if (currentScreen === 'game') {
+        handleGameInput(key);
     }
 });
 
@@ -1398,4 +1393,6 @@ function awardPoint(winner, message) {
     } else {
         setTimeout(initiateNextRoundCountdown, 2000);
     }
+    
+    requestAnimationFrame(pollGamepads);
 }
