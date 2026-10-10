@@ -5,11 +5,8 @@
     --card-bg: #0d1127;
     --border-color: #1e295d;
     --p1-color: #00f0ff;
-    /* Electric Cyan */
     --p2-color: #ff0055;
-    /* Neon Magenta */
     --neon-green: #00ff66;
-    /* Arcade Neon Green */
     --text-slate: #f8fafc;
     --text-muted: #8a99c9;
 }
@@ -67,6 +64,39 @@ body {
     z-index: 10;
     pointer-events: none;
     opacity: 0.6;
+}
+
+/* Top Right Audio Controls */
+.audio-controls {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 30;
+}
+
+.audio-btn {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.5rem;
+    background-color: rgba(30, 41, 93, 0.6);
+    color: var(--neon-green);
+    border: 1px solid var(--neon-green);
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(0, 255, 102, 0.3);
+    transition: all 0.15s ease;
+}
+
+.audio-btn:hover {
+    background-color: var(--neon-green);
+    color: #000;
+}
+
+.audio-btn.muted {
+    color: var(--text-muted);
+    border-color: var(--border-color);
+    background-color: rgba(7, 9, 19, 0.8);
+    box-shadow: none;
 }
 
 /* Header & Typography */
@@ -509,7 +539,6 @@ body {
     border: 2px solid var(--border-color);
     box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.9);
     overflow: visible;
-    /* Prevents stickman clipping on edges */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -557,13 +586,11 @@ body {
 
 /* Green Light Animations */
 @keyframes pulse-ready {
-
     0%,
     100% {
         transform: scale(1);
         box-shadow: 0 0 15px rgba(0, 255, 102, 0.4);
     }
-
     50% {
         transform: scale(1.03);
         box-shadow: 0 0 30px rgba(0, 255, 102, 0.9);

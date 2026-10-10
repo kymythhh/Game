@@ -2,12 +2,11 @@
    1. APP STATE & DEFAULT AVATARS
    ========================================================================== */
 let currentScreen = 'landing';
-let selectedGameMode = 'arcade'; // 'arcade' or 'greenlight'
+let selectedGameMode = 'arcade';
 let selectedMenuIndex = 0;
 let targetScore = 3;
 let cameraStream = null;
 
-// Default SVG Fallback Head Images (Cyan and Magenta)
 let p1HeadSrc = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%2300f0ff'/><circle cx='35' cy='40' r='8' fill='%23000'/><circle cx='65' cy='40' r='8' fill='%23000'/><circle cx='35' cy='40' r='3' fill='%23fff'/><circle cx='65' cy='40' r='3' fill='%23fff'/><path d='M 30 70 Q 50 85 70 70' stroke='%23000' stroke-width='6' fill='none'/></svg>";
 let p2HeadSrc = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%23ff0055'/><circle cx='35' cy='40' r='8' fill='%23fff'/><circle cx='65' cy='40' r='8' fill='%23fff'/><circle cx='35' cy='40' r='3' fill='%23000'/><circle cx='65' cy='40' r='3' fill='%23000'/><path d='M 30 70 Q 50 85 70 70' stroke='%23fff' stroke-width='6' fill='none'/></svg>";
 
@@ -17,11 +16,9 @@ let roundActive = false;
 let currentMode = null;
 let countdownTimerObj = null;
 
-// Mini-game states
 let isGreenLightReady = false;
 let greenLightTimer = null;
-
-let tugPosition = 50; // 0 = P1 Wins, 100 = P2 Wins
+let tugPosition = 50;
 
 const directionKeysP1 = ['w', 'a', 's', 'd'];
 const directionKeysP2 = ['arrowup', 'arrowleft', 'arrowdown', 'arrowright'];
@@ -32,7 +29,7 @@ let p1Index = 0;
 let p2Index = 0;
 
 /* ==========================================================================
-   2. DOM REFERENCES
+   2. DOM REFERENCES & AUDIO CONTROLS
    ========================================================================== */
 const landingScreen = document.getElementById('landingScreen');
 const avatarScreen = document.getElementById('avatarScreen');
@@ -67,6 +64,66 @@ const score2El = document.getElementById('score2');
 const p1KeyBadge = document.getElementById('p1KeyBadge');
 const p2KeyBadge = document.getElementById('p2KeyBadge');
 
+// Audio elements & helper functions
+const bgMusic = document.getElementById('bgMusic');
+const clickSound = document.getElementById('clickSound');
+const winSound = document.getElementById('winSound');
+const musicToggleBtn = document.getElementById('musicToggleBtn');
+
+function playClick() {
+    clickSound.currentTime = 0;
+    clickSound.play().catch(() => {});
+}
+
+function playWin() {
+    // Lower background music volume so win sound stands out
+    bgMusic.volume = 0.2;
+    winSound.currentTime = 0;
+    winSound.play().catch(() => {});
+}
+
+function updateMusicUI() {
+    if (bgMusic.paused) {
+        musicToggleBtn.textContent = "🎵 OFF";
+        musicToggleBtn.classList.add('muted');
+    } else {
+        musicToggleBtn.textContent = "🎵 ON";
+        musicToggleBtn.classList.remove('muted');
+    }
+}
+
+musicToggleBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    playClick();
+
+    if (bgMusic.paused) {
+        bgMusic.volume = 1.0; // Reset volume when turning back on
+        bgMusic.play().then(() => {
+            updateMusicUI();
+        }).catch(err => {
+            console.warn("Audio playback prevented:", err);
+        });
+    } else {
+        bgMusic.pause();
+        updateMusicUI();
+    }
+});
+
+function handleFirstUserGesture() {
+    window.removeEventListener('pointerdown', handleFirstUserGesture);
+    window.removeEventListener('keydown', handleFirstUserGesture);
+}
+
+window.addEventListener('pointerdown', handleFirstUserGesture);
+window.addEventListener('keydown', handleFirstUserGesture);
+
+// Attach button click sounds to ALL buttons and mode selection cards globally
+document.querySelectorAll('button, .mode-card').forEach(item => {
+    item.addEventListener('click', () => {
+        if (item !== musicToggleBtn) playClick();
+    });
+});
+
 /* ==========================================================================
    3. LANDING PAGE & MODE SELECTION
    ========================================================================== */
@@ -77,7 +134,7 @@ modeCards.forEach((card) => {
         selectedGameMode = card.dataset.modeType;
         statusText.textContent = selectedGameMode === 'arcade' 
             ? "ARCADE MODE: CYCLE THROUGH 3 MINI-GAMES!" 
-            : "GREEN LIGHT MODE: PURE REACTION DUEL!";
+            : "REVERSE SNAKE MODE: CONTROL THE FOOD, RUN FOR YOUR LIFE!";
     });
 });
 
@@ -120,6 +177,7 @@ gameBackBtn.addEventListener('click', () => {
 function quitGameToMenu() {
     clearInterval(countdownTimerObj);
     clearTimeout(greenLightTimer);
+    bgMusic.volume = 1.0; // Restore full volume
     gameScreen.classList.add('hidden');
     menuScreen.classList.remove('hidden');
     currentScreen = 'menu';
@@ -277,13 +335,13 @@ function confirmAvatarSelection() {
     
     selectedModeSubtitle.textContent = selectedGameMode === 'arcade' 
         ? "Arcade Mode (3 Mini-Games)" 
-        : "Green Light Showdown Mode";
+        : "Reverse Snake";
 
     statusText.textContent = 'NAVIGATE WITH [W / S] • SELECT WITH [ENTER / A]';
 }
 
 /* ==========================================================================
-   7. CONTROLLER / GAMEPAD API SUPPORT (MULTI-CONTROLLER FIX)
+   7. CONTROLLER / GAMEPAD API SUPPORT
    ========================================================================== */
 let prevPadState = {};
 
@@ -313,12 +371,11 @@ function processGamepadInput(gp, playerNum) {
     const left = (gp.buttons[14] && gp.buttons[14].pressed) || (gp.axes[0] < -0.5);
     const right = (gp.buttons[15] && gp.buttons[15].pressed) || (gp.axes[0] > 0.5);
 
-    // Any Face Button or Bumper/Trigger acts as ACTION
-    const action = (gp.buttons[0] && gp.buttons[0].pressed) || 
-                   (gp.buttons[1] && gp.buttons[1].pressed) || 
-                   (gp.buttons[2] && gp.buttons[2].pressed) || 
-                   (gp.buttons[3] && gp.buttons[3].pressed) || 
-                   (gp.buttons[5] && gp.buttons[5].pressed) || 
+    const action = (gp.buttons[0] && gp.buttons[0].pressed) ||
+                   (gp.buttons[1] && gp.buttons[1].pressed) ||
+                   (gp.buttons[2] && gp.buttons[2].pressed) ||
+                   (gp.buttons[3] && gp.buttons[3].pressed) ||
+                   (gp.buttons[5] && gp.buttons[5].pressed) ||
                    (gp.buttons[7] && gp.buttons[7].pressed);
 
     const start = (gp.buttons[9] && gp.buttons[9].pressed);
@@ -543,7 +600,7 @@ function handleGreenInput(key) {
 }
 
 /* ==========================================================================
-   11. MINI-GAME 2: TUG-OF-WAR CLASH (CYAN VS RED/MAGENTA)
+   11. MINI-GAME 2: TUG-OF-WAR CLASH
    ========================================================================== */
 function setupTugOfWar() {
     tugPosition = 50;
@@ -564,12 +621,9 @@ function renderTugUI() {
                 ${getStickmanSVG(1, 'pull')}
             </div>
 
-            <!-- Tug of War Dual-Colored Progress Bar (Red/Magenta Base + Cyan Fill) -->
+            <!-- Tug of War Dual-Colored Progress Bar -->
             <div style="flex:1; height:32px; background-color:#ff0055; box-shadow: 0 0 12px rgba(255, 0, 85, 0.6); border-radius:6px; border:2px solid #1e295d; position:relative; overflow:hidden; display:flex; align-items:center;">
-                <!-- P1 Cyan Fill -->
                 <div class="tug-progress" style="height:100%; background-color:#00f0ff; box-shadow: 0 0 12px #00f0ff; width: ${100 - tugPosition}%"></div>
-                
-                <!-- Center Green Divider Indicator -->
                 <div style="position:absolute; top:0; bottom:0; width:6px; background-color:#00ff66; box-shadow: 0 0 10px #00ff66; z-index:10; transform:translateX(-50%); left: ${100 - tugPosition}%"></div>
             </div>
 
@@ -712,6 +766,9 @@ function awardPoint(winner, message) {
     statusText.textContent = message;
 
     if (p1Score >= targetScore || p2Score >= targetScore) {
+        // Play win sound and lower background music volume
+        playWin();
+
         const winnerName = p1Score >= targetScore ? 'PLAYER 1' : 'PLAYER 2';
         const winnerNum = p1Score >= targetScore ? 1 : 2;
         const winnerColor = winnerNum === 1 ? '#00f0ff' : '#ff0055';
@@ -724,6 +781,7 @@ function awardPoint(winner, message) {
         statusText.textContent = 'MATCH COMPLETE! RETURNING TO MENU...';
 
         setTimeout(() => {
+            bgMusic.volume = 1.0; // Restore full volume when returning to menu
             gameScreen.classList.add('hidden');
             landingScreen.classList.remove('hidden');
             currentScreen = 'landing';

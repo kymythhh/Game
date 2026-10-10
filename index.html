@@ -10,9 +10,25 @@
 
 <body>
 
+    <!-- Audio Assets -->
+    <audio id="bgMusic" loop>
+        <source src="assets/bgMusic.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="clickSound">
+        <source src="assets/buttonSound.MP3" type="audio/mpeg">
+    </audio>
+    <audio id="winSound">
+        <source src="assets/victory.mp3" type="audio/mpeg">
+    </audio>
+
     <div class="game-container">
         <!-- CRT Arcade Scanline Effect -->
         <div class="scanlines"></div>
+
+        <!-- Top Right Audio Controls -->
+        <div class="audio-controls">
+            <button id="musicToggleBtn" class="audio-btn" title="Toggle Music">🎵 OFF</button>
+        </div>
         
         <!-- Header Section -->
         <header class="header">
@@ -37,17 +53,18 @@
                     <p>Randomly cycles through Green Light Reflex, Tug-of-War Mashing, and Pattern Sequences!</p>
                 </div>
 
-                <!-- Green Light Showdown Card -->
-                <div class="mode-card" data-mode-type="greenlight">
-                    <div class="mode-badge">PURE REFLEX</div>
-                    <div class="mode-icon">🚥</div>
-                    <h3>GREEN LIGHT SHOWDOWN</h3>
-                    <p>High-stakes reaction duel! Wait for green light—first to react wins, early press fouls!</p>
+                <!-- Reverse Snake Card -->
+                <div class="mode-card" data-mode-type="reversesnake">
+                    <div class="mode-badge">STRATEGY</div>
+                    <div class="mode-icon">🐍</div>
+                    <h3>REVERSE SNAKE</h3>
+                    <p>Flipped roles! Control the food and run for your life before the snake catches you.
+                    </p>
                 </div>
             </div>
 
             <button id="startSetupBtn" class="btn primary-btn">
-                ENTER PROFILE SETUP →
+                ENTER PROFILE SETUP
             </button>
             <p class="hint-text">Use [A / D] or [◄ / ►] to pick mode • Press [Enter] or Click to Select</p>
         </div>
@@ -55,7 +72,7 @@
         <!-- STEP 1: CAMERA SETUP SCREEN -->
         <div id="avatarScreen" class="screen hidden">
             <div class="screen-header header-with-back">
-                <button id="avatarBackBtn" class="btn back-btn">◄ MODE SELECT</button>
+                <button id="avatarBackBtn" class="btn back-btn">GAME SELECT</button>
                 <h2>PLAYER PROFILE SETUP</h2>
                 <p>Snap photos using your camera to fit onto the stickmen!</p>
             </div>
@@ -74,7 +91,7 @@
                         <svg id="p1PreviewSvg" viewBox="0 0 100 120"></svg>
                     </div>
 
-                    <button id="p1SnapBtn" class="btn p1-btn">📸 SNAP P1 HEAD</button>
+                    <button id="p1SnapBtn" class="btn p1-btn">SNAP P1 HEAD</button>
                 </div>
 
                 <!-- Player 2 Camera Card -->
@@ -90,19 +107,19 @@
                         <svg id="p2PreviewSvg" viewBox="0 0 100 120"></svg>
                     </div>
 
-                    <button id="p2SnapBtn" class="btn p2-btn">📸 SNAP P2 HEAD</button>
+                    <button id="p2SnapBtn" class="btn p2-btn">SNAP P2 HEAD</button>
                 </div>
             </div>
 
             <button id="confirmAvatarsBtn" class="btn primary-btn font-large">
-                CONTINUE TO TARGET SCORE →
+                CONTINUE TO TARGET SCORE
             </button>
         </div>
 
         <!-- STEP 2: TARGET SCORE MENU SCREEN -->
         <div id="menuScreen" class="screen hidden">
             <div class="screen-header header-with-back">
-                <button id="menuBackBtn" class="btn back-btn">◄ PROFILE SETUP</button>
+                <button id="menuBackBtn" class="btn back-btn">PROFILE SETUP</button>
                 <h2>SELECT TARGET SCORE</h2>
                 <p id="selectedModeSubtitle">Win Condition</p>
             </div>
@@ -160,7 +177,7 @@
             </div>
 
             <div class="game-footer">
-                <button id="gameBackBtn" class="btn back-btn arena-back-btn">◄ QUIT TO MENU (ESC)</button>
+                <button id="gameBackBtn" class="btn back-btn arena-back-btn">QUIT TO MENU (ESC)</button>
             </div>
 
         </div>
