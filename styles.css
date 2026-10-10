@@ -66,12 +66,14 @@ body {
     opacity: 0.6;
 }
 
-/* Top Right Audio Controls */
-.audio-controls {
+/* Top Right Audio & Pad Controls */
+.top-controls {
     position: absolute;
     top: 16px;
     right: 16px;
     z-index: 30;
+    display: flex;
+    gap: 8px;
 }
 
 .audio-btn {
@@ -299,9 +301,26 @@ body {
     gap: 12px;
 }
 
+.player-header-flex {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
 .player-setup-card h3 {
     font-family: 'Press Start 2P', cursive;
     font-size: 0.75rem;
+}
+
+.pad-indicator {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.45rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background-color: rgba(30, 41, 93, 0.8);
+    color: var(--neon-green);
+    border: 1px solid var(--neon-green);
 }
 
 .camera-viewport {
@@ -392,7 +411,7 @@ body {
     transform: translateY(-2px);
 }
 
-/* Back Button */
+/* Back / Secondary Buttons */
 .back-btn {
     font-size: 0.55rem;
     background-color: rgba(30, 41, 93, 0.4);
@@ -414,7 +433,7 @@ body {
     align-self: center;
 }
 
-/* Target Score Options */
+/* Target Score / Config Options */
 .menu-options {
     display: flex;
     flex-direction: column;
@@ -523,11 +542,30 @@ body {
     color: #fff;
 }
 
+.center-divider-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
 .vs-text {
     font-family: 'Press Start 2P', cursive;
     font-size: 0.9rem;
     color: var(--text-muted);
     text-shadow: 2px 2px 0 #000;
+}
+
+.match-timer-box {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.9rem;
+    color: var(--neon-green);
+    text-shadow: 0 0 10px rgba(0, 255, 102, 0.7);
+    margin-top: 6px;
+    padding: 4px 8px;
+    background-color: rgba(7, 9, 19, 0.95);
+    border: 1px solid var(--neon-green);
+    border-radius: 4px;
 }
 
 .arena-box {
@@ -548,6 +586,7 @@ body {
 .game-footer {
     display: flex;
     justify-content: center;
+    gap: 12px;
 }
 
 /* Round Countdown Overlay */
@@ -577,11 +616,69 @@ body {
     text-shadow: 0 0 20px rgba(0, 240, 255, 0.8);
 }
 
+/* Pause Overlay */
+.pause-overlay {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(3, 5, 12, 0.92);
+    backdrop-filter: blur(4px);
+    z-index: 60;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+}
+
+.pause-title {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 1.3rem;
+    color: var(--p1-color);
+    text-shadow: 0 0 15px rgba(0, 240, 255, 0.8);
+}
+
+.pause-hint {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.6rem;
+    color: var(--text-muted);
+}
+
+.pause-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+}
+
 .playfield-content {
     width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+/* Reverse Snake Canvas & Live Arena HUD */
+.snake-arena-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+}
+
+.snake-game-canvas {
+    background-color: #03050c;
+    border: 2px solid var(--border-color);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.9), 0 0 10px rgba(0, 240, 255, 0.15);
+    border-radius: 6px;
+    max-width: 100%;
+    aspect-ratio: 1 / 1;
+}
+
+.snake-trap-indicator {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.55rem;
+    color: #f4d35e;
+    text-shadow: 0 0 8px rgba(244, 211, 94, 0.6);
 }
 
 /* Green Light Animations */

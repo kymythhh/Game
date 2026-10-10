@@ -25,8 +25,9 @@
         <!-- CRT Arcade Scanline Effect -->
         <div class="scanlines"></div>
 
-        <!-- Top Right Audio Controls -->
-        <div class="audio-controls">
+        <!-- Top Right Controls (Audio & Controller Mapping Toggle) -->
+        <div class="top-controls">
+            <button id="padSwapBtn" class="audio-btn" title="Swap Gamepad Assignment">🎮 PAD: P1=PORT1</button>
             <button id="musicToggleBtn" class="audio-btn" title="Toggle Music">🎵 OFF</button>
         </div>
         
@@ -41,7 +42,7 @@
         <div id="landingScreen" class="screen">
             <div class="screen-header">
                 <h2>SELECT GAME MODE</h2>
-                <p>Pick a duel mode to test your reflexes and button-mashing speed!</p>
+                <p>Pick a duel mode to test your reflexes and strategy!</p>
             </div>
 
             <div class="mode-cards-grid">
@@ -58,8 +59,7 @@
                     <div class="mode-badge">STRATEGY</div>
                     <div class="mode-icon">🐍</div>
                     <h3>REVERSE SNAKE</h3>
-                    <p>Flipped roles! Control the food and run for your life before the snake catches you.
-                    </p>
+                    <p>Flipped roles! Control the food and survive before the snake catches you.</p>
                 </div>
             </div>
 
@@ -80,7 +80,10 @@
             <div class="setup-grid">
                 <!-- Player 1 Camera Card -->
                 <div class="player-setup-card p1-card-border">
-                    <h3 class="p1-text">PLAYER 1</h3>
+                    <div class="player-header-flex">
+                        <h3 class="p1-text">PLAYER 1</h3>
+                        <span id="p1PadBadge" class="pad-indicator">PAD 1</span>
+                    </div>
                     
                     <div class="camera-viewport p1-border">
                         <video id="p1Video" autoplay playsinline muted></video>
@@ -96,7 +99,10 @@
 
                 <!-- Player 2 Camera Card -->
                 <div class="player-setup-card p2-card-border">
-                    <h3 class="p2-text">PLAYER 2</h3>
+                    <div class="player-header-flex">
+                        <h3 class="p2-text">PLAYER 2</h3>
+                        <span id="p2PadBadge" class="pad-indicator">PAD 2</span>
+                    </div>
 
                     <div class="camera-viewport p2-border">
                         <video id="p2Video" autoplay playsinline muted></video>
@@ -112,15 +118,15 @@
             </div>
 
             <button id="confirmAvatarsBtn" class="btn primary-btn font-large">
-                CONTINUE TO TARGET SCORE
+                CONTINUE TO CONFIGURATION
             </button>
         </div>
 
-        <!-- STEP 2: TARGET SCORE MENU SCREEN -->
+        <!-- STEP 2: TARGET SCORE / TIMER MENU SCREEN -->
         <div id="menuScreen" class="screen hidden">
             <div class="screen-header header-with-back">
                 <button id="menuBackBtn" class="btn back-btn">PROFILE SETUP</button>
-                <h2>SELECT TARGET SCORE</h2>
+                <h2 id="menuScreenTitle">SELECT MATCH CONDITION</h2>
                 <p id="selectedModeSubtitle">Win Condition</p>
             </div>
             
@@ -148,8 +154,13 @@
                     <span id="score1" class="score-num">0</span>
                 </div>
 
-                <!-- VS Divider -->
-                <div class="vs-text">VS</div>
+                <!-- VS / Timer Center Divider -->
+                <div class="center-divider-box">
+                    <div id="centerDividerLabel" class="vs-text">VS</div>
+                    <div id="matchTimerBox" class="match-timer-box hidden">
+                        <span id="matchTimerNum">60</span>s
+                    </div>
+                </div>
 
                 <!-- Player 2 Card -->
                 <div class="scoreboard-card p2-border">
@@ -164,19 +175,28 @@
 
             <!-- Playfield Arena Box -->
             <div class="arena-box">
-                
                 <!-- Round Countdown Overlay -->
                 <div id="countdownOverlay" class="countdown-overlay">
                     <span id="countdownLabel" class="countdown-label">NEXT ROUND IN</span>
                     <span id="countdownTimer" class="countdown-number">3</span>
                 </div>
 
+                <!-- In-Game Pause Overlay -->
+                <div id="pauseOverlay" class="pause-overlay hidden">
+                    <h2 class="pause-title">GAME PAUSED</h2>
+                    <p class="pause-hint">Press [P] or START to Resume</p>
+                    <div class="pause-actions">
+                        <button id="resumeBtn" class="btn primary-btn">RESUME MATCH</button>
+                        <button id="pauseQuitBtn" class="btn back-btn">QUIT TO MENU</button>
+                    </div>
+                </div>
+
                 <!-- Dynamic Game Content Container -->
                 <div id="playfieldContent" class="playfield-content"></div>
-
             </div>
 
             <div class="game-footer">
+                <button id="pauseBtn" class="btn back-btn">PAUSE (P)</button>
                 <button id="gameBackBtn" class="btn back-btn arena-back-btn">QUIT TO MENU (ESC)</button>
             </div>
 
