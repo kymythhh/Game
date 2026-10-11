@@ -658,8 +658,8 @@ function updateScreenVisibility() {
         statusText.textContent = 'NAVIGATE WITH [W / S] • SELECT WITH [ENTER / A]';
     } else if (currentScreen === 'game') {
         gameScreen.classList.remove('hidden');
+        // Hide the top-left global back button during active matches
         if (globalBackBtn) globalBackBtn.classList.add('hidden');
-        statusText.textContent = "MATCH IN PROGRESS!";
     }
 }
 
@@ -1171,6 +1171,7 @@ function startGame() {
     menuScreen.classList.add('hidden');
     gameScreen.classList.remove('hidden');
     currentScreen = 'game';
+    updateScreenVisibility();
 
     if (selectedGameMode === 'reversesnake') {
         setupReverseSnakeMatch();
