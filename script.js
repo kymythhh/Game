@@ -309,6 +309,11 @@ class ReverseSnakeGameManager {
         this.seeds = [];
         this.spawnSeeds(3);
 
+        // Independent speed timers: Snake moves faster (~74ms), Fruit stays at original speed (100ms)
+        this.lastSnakeMove = Date.now();
+        this.lastFruitMove = Date.now();
+        this.lastTrapTick = Date.now();
+
         this.updateHUD();
         this.render();
     }
@@ -331,41 +336,67 @@ class ReverseSnakeGameManager {
     }
 
     step() {
-        this.fruit.update();
+        const now = Date.now();
+        let needsRedraw = false;
 
-        const seedIndex = this.seeds.findIndex(s => s.x === this.fruit.x && s.y === this.fruit.y);
-        if (seedIndex !== -1) {
-            this.seeds.splice(seedIndex, 1);
-            this.fruit.collectSeed();
-            this.spawnSeeds(3);
-        }
+        // 1. Move Fruit at original baseline speed (every 100ms)
+        if (now - this.lastFruitMove >= 100) {
+            this.lastFruitMove = now;
+            this.fruit.update();
 
-        const moved = this.snake.update();
-
-        let caughtFruit = false;
-        if (this.fruit.invulnerableTicks === 0 && this.snake.occupies(this.fruit.x, this.fruit.y)) {
-            this.snake.grow();
-            this.fruit.respawn((rx, ry) => this.snake.occupies(rx, ry));
-            caughtFruit = true;
-        }
-
-        if (moved && !caughtFruit) {
-            this.snake.popTail();
-        }
-
-        if (moved) {
-            const trapHitIndex = this.traps.findIndex(t => t.x === this.snake.x && t.y === this.snake.y);
-            if (trapHitIndex !== -1) {
-                this.traps.splice(trapHitIndex, 1);
-                this.fruit.score += 20;
-                this.snake.shrinkAndStun();
+            const seedIndex = this.seeds.findIndex(s => s.x === this.fruit.x && s.y === this.fruit.y);
+            if (seedIndex !== -1) {
+                this.seeds.splice(seedIndex, 1);
+                this.fruit.collectSeed();
+                this.spawnSeeds(3);
             }
+
+            // Fruit contact with any snake segment
+            if (this.fruit.invulnerableTicks === 0 && this.snake.occupies(this.fruit.x, this.fruit.y)) {
+                this.snake.grow();
+                this.fruit.respawn((rx, ry) => this.snake.occupies(rx, ry));
+            }
+            needsRedraw = true;
         }
 
-        this.traps = this.traps.filter(trap => trap.update());
+        // 2. Move Snake ~35% faster (every 74ms)
+        if (now - this.lastSnakeMove >= 74) {
+            this.lastSnakeMove = now;
+            const moved = this.snake.update();
 
-        this.updateHUD();
-        this.render();
+            let caughtFruit = false;
+            if (this.fruit.invulnerableTicks === 0 && this.snake.occupies(this.fruit.x, this.fruit.y)) {
+                this.snake.grow();
+                this.fruit.respawn((rx, ry) => this.snake.occupies(rx, ry));
+                caughtFruit = true;
+            }
+
+            if (moved && !caughtFruit) {
+                this.snake.popTail();
+            }
+
+            if (moved) {
+                const trapHitIndex = this.traps.findIndex(t => t.x === this.snake.x && t.y === this.snake.y);
+                if (trapHitIndex !== -1) {
+                    this.traps.splice(trapHitIndex, 1);
+                    this.fruit.score += 20;
+                    this.snake.shrinkAndStun();
+                }
+            }
+            needsRedraw = true;
+        }
+
+        // 3. Update Traps every 100ms (preserves standard 15s duration)
+        if (now - this.lastTrapTick >= 100) {
+            this.lastTrapTick = now;
+            this.traps = this.traps.filter(trap => trap.update());
+            needsRedraw = true;
+        }
+
+        if (needsRedraw) {
+            this.updateHUD();
+            this.render();
+        }
     }
 
     render() {
@@ -421,7 +452,7 @@ class ReverseSnakeGameManager {
 
 /* ==========================================================================
    2. APP STATE, CONTROLLER MAPPING & NAVIGATION
-   ========================================================================= */
+   ========================================================================== */
 let currentScreen = 'mainmenu';
 let selectedGameMode = 'arcade';
 let selectedMenuIndex = 0;
@@ -658,7 +689,6 @@ function updateScreenVisibility() {
         statusText.textContent = 'NAVIGATE WITH [W / S] • SELECT WITH [ENTER / A]';
     } else if (currentScreen === 'game') {
         gameScreen.classList.remove('hidden');
-        // Hide the top-left global back button during active matches
         if (globalBackBtn) globalBackBtn.classList.add('hidden');
     }
 }
@@ -677,26 +707,6 @@ if (globalBackBtn) {
             updateScreenVisibility();
         }
     });
-}
-
-function openHowToModal() {
-    activeModal = 'howto';
-    howToModal.classList.remove('hidden');
-}
-
-function closeHowToModal() {
-    activeModal = null;
-    howToModal.classList.add('hidden');
-}
-
-function openSettingsModal() {
-    activeModal = 'settings';
-    settingsModal.classList.remove('hidden');
-}
-
-function closeSettingsModal() {
-    activeModal = null;
-    settingsModal.classList.add('hidden');
 }
 
 mainHowToBtn.addEventListener('click', openHowToModal);
@@ -989,10 +999,8 @@ let prevPadState = {};
 
 function pollGamepads() {
     const rawPads = navigator.getGamepads ? navigator.getGamepads() : [];
-    // Collect truly connected physical gamepads into sequential array slots
     const activePads = Array.from(rawPads).filter(gp => gp !== null && gp.connected);
 
-    // Map each physical controller strictly to Player 1 or Player 2 by connected sequence
     activePads.forEach((gp, slotIndex) => {
         let playerNum;
         if (!swapControllers) {
@@ -1023,7 +1031,6 @@ function processGamepadInput(gp, playerNum) {
     const start = (gp.buttons[9] && gp.buttons[9].pressed);
     const select = (gp.buttons[8] && gp.buttons[8].pressed);
 
-    // Any controller press will start background audio if browser was waiting for a gesture
     if ((action || start || up || down || left || right) && musicEnabled && bgMusic.paused) {
         bgMusic.volume = 1.0;
         bgMusic.play().then(updateMusicUI).catch(() => { });
@@ -1243,11 +1250,12 @@ function startReverseSnakeEngine() {
     roundActive = true;
     stopSnakeLoops();
 
+    // High-frequency engine loop (10ms) allows independent snake & fruit movement
     snakeGameLoopInterval = setInterval(() => {
         if (roundActive && !isGamePaused && snakeGameInstance) {
             snakeGameInstance.step();
         }
-    }, 100);
+    }, 10);
 
     snakePassiveInterval = setInterval(() => {
         if (roundActive && !isGamePaused && snakeGameInstance) {
