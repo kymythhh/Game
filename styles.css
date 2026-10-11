@@ -65,24 +65,6 @@ body {
     opacity: 0.6;
 }
 
-.top-left-controls {
-    position: absolute;
-    top: 16px;
-    left: 16px;
-    z-index: 30;
-    display: flex;
-    gap: 8px;
-}
-
-.top-right-controls {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    z-index: 30;
-    display: flex;
-    gap: 8px;
-}
-
 .audio-btn {
     font-family: 'Press Start 2P', cursive;
     font-size: 0.5rem;
@@ -109,7 +91,7 @@ body {
 }
 
 .header {
-    margin-top: 18px;
+    margin-top: 10px;
     margin-bottom: 20px;
 }
 
@@ -214,6 +196,25 @@ body {
     gap: 10px;
 }
 
+/* Main Menu Component */
+.main-menu-options {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    max-width: 420px;
+    margin: 8px auto 0 auto;
+    width: 100%;
+}
+
+.terminal-footer-hint {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.48rem;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+    margin-top: 10px;
+}
+
+/* Mode Cards */
 .mode-cards-grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -281,6 +282,7 @@ body {
     line-height: 1.4;
 }
 
+/* Avatar Setup Screen */
 .setup-grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -356,6 +358,7 @@ body {
     height: 100%;
 }
 
+/* Buttons */
 .btn {
     font-family: 'Press Start 2P', cursive;
     font-size: 0.65rem;
@@ -434,6 +437,7 @@ body {
     align-self: center;
 }
 
+/* Generic Menu Buttons */
 .menu-options {
     display: flex;
     flex-direction: column;
@@ -486,6 +490,7 @@ body {
     color: var(--text-muted);
 }
 
+/* Scoreboard */
 .scoreboard {
     display: grid;
     grid-template-columns: 2fr 1fr 2fr;
@@ -677,6 +682,117 @@ body {
     text-shadow: 0 0 8px rgba(244, 211, 94, 0.6);
 }
 
+/* Modals (How to Play & Settings) */
+.modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(3, 5, 12, 0.88);
+    backdrop-filter: blur(5px);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+
+.modal-box {
+    width: 100%;
+    max-width: 480px;
+    background-color: #090d20;
+    border: 2px solid var(--p1-color);
+    box-shadow: 0 0 30px rgba(0, 240, 255, 0.4), inset 0 0 15px rgba(0, 0, 0, 0.8);
+    border-radius: 10px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    text-align: left;
+}
+
+.settings-modal-box {
+    max-width: 380px;
+    text-align: center;
+}
+
+.modal-title {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.95rem;
+    color: var(--p1-color);
+    text-shadow: 0 0 12px rgba(0, 240, 255, 0.8);
+    text-align: center;
+    letter-spacing: 1px;
+}
+
+.modal-scroll-content {
+    max-height: 240px;
+    overflow-y: auto;
+    padding-right: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.modal-scroll-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-scroll-content::-webkit-scrollbar-track {
+    background: #0d1127;
+    border-radius: 4px;
+}
+
+.modal-scroll-content::-webkit-scrollbar-thumb {
+    background: #8a99c9;
+    border-radius: 4px;
+}
+
+.guide-section h3 {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.6rem;
+    color: var(--text-slate);
+    margin-bottom: 6px;
+}
+
+.guide-section ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.guide-section li {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    line-height: 1.4;
+    padding-left: 12px;
+    position: relative;
+}
+
+.guide-section li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: var(--p1-color);
+}
+
+.guide-section li strong {
+    color: #fff;
+}
+
+.modal-options-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 8px 0;
+}
+
+.modal-close-btn {
+    width: 100%;
+    margin-top: 8px;
+}
+
+/* Animations */
 @keyframes pulse-ready {
     0%,
     100% {

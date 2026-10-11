@@ -1,3 +1,7 @@
+/* ==========================================================================
+   1. OOP REVERSE SNAKE CLASSES (Encapsulation, Inheritance, Polymorphism)
+   ========================================================================== */
+
 class GameObject {
     constructor(x, y, gridLimit) {
         this.x = x;
@@ -82,15 +86,12 @@ class Snake extends GameObject {
             const py = seg.y * tileSize;
 
             if (i === 0) {
-                // HEAD: Emerald/Lime base with directional eye pixels
                 ctx.fillStyle = isStunned ? "#90e0ef" : "#10c946";
                 ctx.fillRect(px + 1, py + 1, tileSize - 2, tileSize - 2);
 
-                // Darker green border band
                 ctx.fillStyle = isStunned ? "#48cae4" : "#0aa335";
                 ctx.fillRect(px + 2, py + 2, tileSize - 4, 3);
 
-                // Red Eye/Tongue pixels oriented to movement direction
                 ctx.fillStyle = "#ff2233";
                 if (this.dir.x === 1) {
                     ctx.fillRect(px + tileSize - 5, py + 4, 3, 3);
@@ -106,11 +107,9 @@ class Snake extends GameObject {
                     ctx.fillRect(px + tileSize - 7, py + tileSize - 5, 3, 3);
                 }
             } else if (i === this.segments.length - 1) {
-                // TAIL: Deep blue tapered tip
                 ctx.fillStyle = isStunned ? "#0077b6" : "#1a60e0";
                 ctx.fillRect(px + 4, py + 4, tileSize - 8, tileSize - 8);
             } else {
-                // BODY: Alternating green outer scales + central cyan/blue spine
                 const ratio = i / this.segments.length;
                 ctx.fillStyle = (i % 2 === 0) ? "#12bd45" : "#0da83c";
                 ctx.fillRect(px + 1, py + 1, tileSize - 2, tileSize - 2);
@@ -183,7 +182,6 @@ class Fruit extends GameObject {
         const px = this.x * tileSize;
         const py = this.y * tileSize;
 
-        // PROCEDURAL PIXEL APPLE (Full-tile matching fruit.png anatomy)
         ctx.fillStyle = "#0a0a10";
         ctx.fillRect(px + 2, py + 4, tileSize - 4, tileSize - 5);
 
@@ -216,7 +214,6 @@ class Seed extends GameObject {
         const px = this.x * tileSize;
         const py = this.y * tileSize;
 
-        // PROCEDURAL PIXEL ORB (Full-tile matching orb.png anatomy)
         ctx.fillStyle = "#28346e";
         ctx.fillRect(px + 3, py + 2, tileSize - 6, tileSize - 4);
         ctx.fillRect(px + 2, py + 3, tileSize - 4, tileSize - 6);
@@ -422,15 +419,22 @@ class ReverseSnakeGameManager {
     }
 }
 
-let currentScreen = 'avatar';
+/* ==========================================================================
+   2. APP STATE, CONTROLLER MAPPING & NAVIGATION
+   ========================================================================= */
+let currentScreen = 'mainmenu';
 let selectedGameMode = 'arcade';
 let selectedMenuIndex = 0;
+let mainMenuIndex = 0;
 let targetScore = 3;
 let cameraStream = null;
 
 let swapControllers = false;
-
 let isGamePaused = false;
+let activeModal = null;
+
+// Music state: Starts ON by default, plays immediately upon first interaction
+let musicEnabled = true;
 
 let p1HeadSrc = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%2300f0ff'/><circle cx='35' cy='40' r='8' fill='%23000'/><circle cx='65' cy='40' r='8' fill='%23000'/><circle cx='35' cy='40' r='3' fill='%23fff'/><circle cx='65' cy='40' r='3' fill='%23fff'/><path d='M 30 70 Q 50 85 70 70' stroke='%23000' stroke-width='6' fill='none'/></svg>";
 let p2HeadSrc = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%23ff0055'/><circle cx='35' cy='40' r='8' fill='%23fff'/><circle cx='65' cy='40' r='8' fill='%23fff'/><circle cx='35' cy='40' r='3' fill='%23000'/><circle cx='65' cy='40' r='3' fill='%23000'/><path d='M 30 70 Q 50 85 70 70' stroke='%23fff' stroke-width='6' fill='none'/></svg>";
@@ -459,10 +463,27 @@ let snakeRoundTimerInterval = null;
 let snakePassiveInterval = null;
 let snakeTimeRemaining = 60;
 
+/* ==========================================================================
+   3. DOM REFERENCES
+   ========================================================================== */
+const mainMenuScreen = document.getElementById('mainMenuScreen');
 const landingScreen = document.getElementById('landingScreen');
 const avatarScreen = document.getElementById('avatarScreen');
 const menuScreen = document.getElementById('menuScreen');
 const gameScreen = document.getElementById('gameScreen');
+
+const mainStartBtn = document.getElementById('mainStartBtn');
+const mainProfileBtn = document.getElementById('mainProfileBtn');
+const mainHowToBtn = document.getElementById('mainHowToBtn');
+const mainSettingsBtn = document.getElementById('mainSettingsBtn');
+const mainMenuBtns = [mainStartBtn, mainProfileBtn, mainHowToBtn, mainSettingsBtn];
+
+const howToModal = document.getElementById('howToModal');
+const closeHowToBtn = document.getElementById('closeHowToBtn');
+const settingsModal = document.getElementById('settingsModal');
+const closeSettingsBtn = document.getElementById('closeSettingsBtn');
+const settingsMusicToggle = document.getElementById('settingsMusicToggle');
+const settingsPadToggle = document.getElementById('settingsPadToggle');
 
 const modeCards = document.querySelectorAll('.mode-card');
 const startSetupBtn = document.getElementById('startSetupBtn');
@@ -471,6 +492,7 @@ const menuScreenTitle = document.getElementById('menuScreenTitle');
 const scoreOptionsContainer = document.getElementById('scoreOptions');
 
 const avatarBackBtn = document.getElementById('avatarBackBtn');
+const modeBackBtn = document.getElementById('modeBackBtn');
 const menuBackBtn = document.getElementById('menuBackBtn');
 const gameBackBtn = document.getElementById('gameBackBtn');
 
@@ -484,7 +506,6 @@ const confirmAvatarsBtn = document.getElementById('confirmAvatarsBtn');
 
 const p1PadBadge = document.getElementById('p1PadBadge');
 const p2PadBadge = document.getElementById('p2PadBadge');
-const padSwapBtn = document.getElementById('padSwapBtn');
 
 const countdownOverlay = document.getElementById('countdownOverlay');
 const countdownTimer = document.getElementById('countdownTimer');
@@ -507,7 +528,6 @@ const matchTimerNum = document.getElementById('matchTimerNum');
 const bgMusic = document.getElementById('bgMusic');
 const clickSound = document.getElementById('clickSound');
 const winSound = document.getElementById('winSound');
-const musicToggleBtn = document.getElementById('musicToggleBtn');
 
 function playClick() {
     clickSound.currentTime = 0;
@@ -521,27 +541,30 @@ function playWin() {
 }
 
 function updateMusicUI() {
-    if (bgMusic.paused) {
-        musicToggleBtn.textContent = "🎵 OFF";
-        musicToggleBtn.classList.add('muted');
-    } else {
-        musicToggleBtn.textContent = "🎵 ON";
-        musicToggleBtn.classList.remove('muted');
+    if (settingsMusicToggle) {
+        settingsMusicToggle.textContent = `🎵 MUSIC: ${musicEnabled ? "ON" : "OFF"}`;
+        if (musicEnabled) {
+            settingsMusicToggle.classList.add('selected');
+        } else {
+            settingsMusicToggle.classList.remove('selected');
+        }
     }
 }
 
-musicToggleBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
+function toggleMusic() {
     playClick();
+    musicEnabled = !musicEnabled;
 
-    if (bgMusic.paused) {
+    if (musicEnabled) {
         bgMusic.volume = 1.0;
         bgMusic.play().then(updateMusicUI).catch(err => console.warn(err));
     } else {
         bgMusic.pause();
         updateMusicUI();
     }
-});
+}
+
+settingsMusicToggle.addEventListener('click', toggleMusic);
 
 function toggleControllerAssignment() {
     playClick();
@@ -550,29 +573,20 @@ function toggleControllerAssignment() {
 }
 
 function updatePadUI() {
-    if (swapControllers) {
-        padSwapBtn.textContent = "🎮 PAD: P1=PORT2";
-        if (p1PadBadge) p1PadBadge.textContent = "PAD 2";
-        if (p2PadBadge) p2PadBadge.textContent = "PAD 1";
-        statusText.textContent = "CONTROLLERS SWAPPED: P1 = PORT 2, P2 = PORT 1";
-    } else {
-        padSwapBtn.textContent = "🎮 PAD: P1=PORT1";
-        if (p1PadBadge) p1PadBadge.textContent = "PAD 1";
-        if (p2PadBadge) p2PadBadge.textContent = "PAD 2";
-        statusText.textContent = "CONTROLLERS DEFAULT: P1 = PORT 1, P2 = PORT 2";
-    }
+    const label = swapControllers ? "🎮 PAD: P1=PORT2" : "🎮 PAD: P1=PORT1";
+    if (settingsPadToggle) settingsPadToggle.textContent = label;
+
+    if (p1PadBadge) p1PadBadge.textContent = swapControllers ? "PAD 2" : "PAD 1";
+    if (p2PadBadge) p2PadBadge.textContent = swapControllers ? "PAD 1" : "PAD 2";
 }
 
-padSwapBtn.addEventListener('click', toggleControllerAssignment);
+settingsPadToggle.addEventListener('click', toggleControllerAssignment);
 
+// Auto-start music on the first click, keydown, or gamepad input
 function handleFirstUserGesture() {
-    if (bgMusic.paused) {
+    if (musicEnabled && bgMusic.paused) {
         bgMusic.volume = 1.0;
-        bgMusic.play().then(() => {
-            updateMusicUI();
-        }).catch(err => {
-            console.warn("Autoplay prevented:", err);
-        });
+        bgMusic.play().then(updateMusicUI).catch(err => console.warn("Autoplay prevented:", err));
     }
     window.removeEventListener('pointerdown', handleFirstUserGesture);
     window.removeEventListener('keydown', handleFirstUserGesture);
@@ -582,18 +596,107 @@ window.addEventListener('keydown', handleFirstUserGesture);
 
 document.querySelectorAll('button, .mode-card').forEach(item => {
     item.addEventListener('click', () => {
-        if (item !== musicToggleBtn && item !== padSwapBtn) playClick();
+        if (item !== settingsMusicToggle && item !== settingsPadToggle) {
+            playClick();
+        }
     });
 });
 
-window.addEventListener('DOMContentLoaded', () => {
+/* ==========================================================================
+   4. MODALS & SCREEN ROUTING
+   ========================================================================== */
+function openHowToModal() {
+    activeModal = 'howto';
+    howToModal.classList.remove('hidden');
+}
+
+function closeHowToModal() {
+    activeModal = null;
+    howToModal.classList.add('hidden');
+}
+
+function openSettingsModal() {
+    activeModal = 'settings';
+    settingsModal.classList.remove('hidden');
+}
+
+function closeSettingsModal() {
+    activeModal = null;
+    settingsModal.classList.add('hidden');
+}
+
+mainHowToBtn.addEventListener('click', openHowToModal);
+closeHowToBtn.addEventListener('click', closeHowToModal);
+
+mainSettingsBtn.addEventListener('click', openSettingsModal);
+closeSettingsBtn.addEventListener('click', closeSettingsModal);
+
+mainStartBtn.addEventListener('click', () => {
+    mainMenuScreen.classList.add('hidden');
+    landingScreen.classList.remove('hidden');
+    currentScreen = 'landing';
+    statusText.textContent = "CHOOSE YOUR DUEL MODE!";
+});
+
+mainProfileBtn.addEventListener('click', () => {
+    mainMenuScreen.classList.add('hidden');
+    avatarScreen.classList.remove('hidden');
+    currentScreen = 'avatar';
+    statusText.textContent = "SNAP PHOTOS TO CUSTOMIZE YOUR FIGHTERS!";
     initWebcam();
     updateAvatarDisplays();
+    updatePadUI();
 });
+
+avatarBackBtn.addEventListener('click', () => {
+    stopCamera();
+    avatarScreen.classList.add('hidden');
+    mainMenuScreen.classList.remove('hidden');
+    currentScreen = 'mainmenu';
+    statusText.textContent = "SELECT AN OPTION FROM THE ARCADE TERMINAL";
+});
+
+confirmAvatarsBtn.addEventListener('click', () => {
+    stopCamera();
+    avatarScreen.classList.add('hidden');
+    mainMenuScreen.classList.remove('hidden');
+    currentScreen = 'mainmenu';
+    statusText.textContent = "PROFILES SAVED! SELECT AN OPTION";
+});
+
+modeBackBtn.addEventListener('click', () => {
+    landingScreen.classList.add('hidden');
+    mainMenuScreen.classList.remove('hidden');
+    currentScreen = 'mainmenu';
+    statusText.textContent = "SELECT AN OPTION FROM THE ARCADE TERMINAL";
+});
+
+menuBackBtn.addEventListener('click', () => {
+    menuScreen.classList.add('hidden');
+    landingScreen.classList.remove('hidden');
+    currentScreen = 'landing';
+    statusText.textContent = 'CHOOSE YOUR DUEL MODE!';
+});
+
+gameBackBtn.addEventListener('click', () => {
+    quitGameToMenu();
+});
+
+function quitGameToMenu() {
+    isGamePaused = false;
+    pauseOverlay.classList.add('hidden');
+    clearInterval(countdownTimerObj);
+    clearTimeout(greenLightTimer);
+    stopSnakeLoops();
+    bgMusic.volume = 1.0;
+    gameScreen.classList.add('hidden');
+    mainMenuScreen.classList.remove('hidden');
+    currentScreen = 'mainmenu';
+    statusText.textContent = 'SELECT AN OPTION FROM THE ARCADE TERMINAL';
+}
 
 function togglePauseGame() {
     if (currentScreen !== 'game' || !roundActive) return;
-
     isGamePaused = !isGamePaused;
     playClick();
 
@@ -654,46 +757,55 @@ function goToMenuScreen() {
     statusText.textContent = 'NAVIGATE WITH [W / S] • SELECT WITH [ENTER / A]';
 }
 
-function goToAvatarSetup() {
-    landingScreen.classList.add('hidden');
-    avatarScreen.classList.remove('hidden');
-    currentScreen = 'avatar';
-    statusText.textContent = "SNAP PHOTOS TO CUSTOMIZE YOUR FIGHTERS!";
-    initWebcam();
-    updateAvatarDisplays();
-    updatePadUI();
+function bindMenuButtons() {
+    const btns = document.querySelectorAll('#scoreOptions .menu-btn');
+    btns.forEach((btn, idx) => {
+        btn.addEventListener('click', () => {
+            selectedMenuIndex = idx;
+            updateMenuSelection();
+            targetScore = parseInt(btn.dataset.value);
+            startGame();
+        });
+    });
 }
 
-avatarBackBtn.addEventListener('click', () => {
-    landingScreen.classList.add('hidden');
-    avatarScreen.classList.remove('hidden');
-    currentScreen = 'avatar';
-    statusText.textContent = 'SNAP PHOTOS TO CUSTOMIZE YOUR FIGHTERS!';
-    initWebcam();
-});
+function handleMenuNavigation(key) {
+    const btns = document.querySelectorAll('#scoreOptions .menu-btn');
+    if (key === 'w' || key === 'arrowup') {
+        selectedMenuIndex = (selectedMenuIndex - 1 + btns.length) % btns.length;
+        updateMenuSelection();
+    } else if (key === 's' || key === 'arrowdown') {
+        selectedMenuIndex = (selectedMenuIndex + 1) % btns.length;
+        updateMenuSelection();
+    } else if (key === 'enter') {
+        targetScore = parseInt(btns[selectedMenuIndex].dataset.value);
+        startGame();
+    }
+}
 
-menuBackBtn.addEventListener('click', () => {
-    menuScreen.classList.add('hidden');
-    landingScreen.classList.remove('hidden');
-    currentScreen = 'landing';
-    statusText.textContent = 'CHOOSE YOUR DUEL MODE!';
-});
+function updateMenuSelection() {
+    const btns = document.querySelectorAll('#scoreOptions .menu-btn');
+    btns.forEach((btn, index) => {
+        btn.className = index === selectedMenuIndex ? "menu-btn selected" : "menu-btn";
+    });
+}
 
-gameBackBtn.addEventListener('click', () => {
-    quitGameToMenu();
-});
+function handleMainMenuNav(key) {
+    if (key === 'w' || key === 'arrowup') {
+        mainMenuIndex = (mainMenuIndex - 1 + mainMenuBtns.length) % mainMenuBtns.length;
+        updateMainMenuSelection();
+    } else if (key === 's' || key === 'arrowdown') {
+        mainMenuIndex = (mainMenuIndex + 1) % mainMenuBtns.length;
+        updateMainMenuSelection();
+    } else if (key === 'enter') {
+        mainMenuBtns[mainMenuIndex].click();
+    }
+}
 
-function quitGameToMenu() {
-    isGamePaused = false;
-    pauseOverlay.classList.add('hidden');
-    clearInterval(countdownTimerObj);
-    clearTimeout(greenLightTimer);
-    stopSnakeLoops();
-    bgMusic.volume = 1.0;
-    gameScreen.classList.add('hidden');
-    menuScreen.classList.remove('hidden');
-    currentScreen = 'menu';
-    statusText.textContent = 'NAVIGATE WITH [W / S] • SELECT WITH [ENTER / A]';
+function updateMainMenuSelection() {
+    mainMenuBtns.forEach((btn, index) => {
+        btn.classList.toggle('selected', index === mainMenuIndex);
+    });
 }
 
 function stopSnakeLoops() {
@@ -702,6 +814,9 @@ function stopSnakeLoops() {
     clearInterval(snakePassiveInterval);
 }
 
+/* ==========================================================================
+   5. CAMERA & AVATAR SVGs
+   ========================================================================== */
 let clipIdCounter = 0;
 
 function getHeadOnlySVG(player) {
@@ -824,61 +939,23 @@ function updateAvatarDisplays() {
     if (p2Card) p2Card.innerHTML = getHeadOnlySVG(2);
 }
 
-confirmAvatarsBtn.addEventListener('click', () => {
-    confirmAvatarSelection();
-});
-
-function confirmAvatarSelection() {
-    stopCamera();
-    avatarScreen.classList.add('hidden');
-    landingScreen.classList.remove('hidden');
-    currentScreen = 'landing';
-    statusText.textContent = 'CHOOSE YOUR DUEL MODE!';
-}
-
-function bindMenuButtons() {
-    const btns = document.querySelectorAll('.menu-btn');
-    btns.forEach((btn, idx) => {
-        btn.addEventListener('click', () => {
-            selectedMenuIndex = idx;
-            updateMenuSelection();
-            targetScore = parseInt(btn.dataset.value);
-            startGame();
-        });
-    });
-}
-
-function handleMenuNavigation(key) {
-    const btns = document.querySelectorAll('.menu-btn');
-    if (key === 'w' || key === 'arrowup') {
-        selectedMenuIndex = (selectedMenuIndex - 1 + btns.length) % btns.length;
-        updateMenuSelection();
-    } else if (key === 's' || key === 'arrowdown') {
-        selectedMenuIndex = (selectedMenuIndex + 1) % btns.length;
-        updateMenuSelection();
-    } else if (key === 'enter') {
-        targetScore = parseInt(btns[selectedMenuIndex].dataset.value);
-        startGame();
-    }
-}
-
-function updateMenuSelection() {
-    const btns = document.querySelectorAll('.menu-btn');
-    btns.forEach((btn, index) => {
-        btn.className = index === selectedMenuIndex ? "menu-btn selected" : "menu-btn";
-    });
-}
-
+/* ==========================================================================
+   6. INDEPENDENT DUAL GAMEPAD POLLING (SLOT-BASED)
+   ========================================================================== */
 let prevPadState = {};
 
 function pollGamepads() {
-    const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
-    const activePads = Array.from(gamepads).filter(gp => gp !== null && gp.connected);
+    const rawPads = navigator.getGamepads ? navigator.getGamepads() : [];
+    // Collect truly connected physical gamepads into sequential array slots
+    const activePads = Array.from(rawPads).filter(gp => gp !== null && gp.connected);
 
-    activePads.forEach((gp) => {
-        let playerNum = (gp.index === 0) ? 1 : 2;
-        if (swapControllers) {
-            playerNum = (gp.index === 0) ? 2 : 1;
+    // Map each physical controller strictly to Player 1 or Player 2 by connected sequence
+    activePads.forEach((gp, slotIndex) => {
+        let playerNum;
+        if (!swapControllers) {
+            playerNum = (slotIndex === 0) ? 1 : 2;
+        } else {
+            playerNum = (slotIndex === 0) ? 2 : 1;
         }
 
         processGamepadInput(gp, playerNum);
@@ -903,22 +980,37 @@ function processGamepadInput(gp, playerNum) {
     const start = (gp.buttons[9] && gp.buttons[9].pressed);
     const select = (gp.buttons[8] && gp.buttons[8].pressed);
 
+    // Any controller press will start background audio if browser was waiting for a gesture
+    if ((action || start || up || down || left || right) && musicEnabled && bgMusic.paused) {
+        bgMusic.volume = 1.0;
+        bgMusic.play().then(updateMusicUI).catch(() => {});
+    }
+
     if (select && !prev.select) {
         toggleControllerAssignment();
     }
 
-    if (currentScreen === 'landing') {
-        if ((left && !prev.left) || (right && !prev.right)) {
-            selectedGameMode = selectedGameMode === 'arcade' ? 'reversesnake' : 'arcade';
-            modeCards.forEach(c => c.classList.toggle('selected', c.dataset.modeType === selectedGameMode));
+    if (activeModal !== null) {
+        if ((action && !prev.action) || (start && !prev.start)) {
+            if (activeModal === 'howto') closeHowToModal();
+            else if (activeModal === 'settings') closeSettingsModal();
         }
-        if ((action && !prev.action) || (start && !prev.start)) goToAvatarSetup();
+    } else if (currentScreen === 'mainmenu') {
+        if (up && !prev.up) handleMainMenuNav('w');
+        if (down && !prev.down) handleMainMenuNav('s');
+        if ((action && !prev.action) || (start && !prev.start)) handleMainMenuNav('enter');
     } else if (currentScreen === 'avatar') {
         if (action && !prev.action) {
             if (playerNum === 1) p1SnapBtn.click();
             else p2SnapBtn.click();
         }
-        if (start && !prev.start) confirmAvatarSelection();
+        if (start && !prev.start) confirmAvatarsBtn.click();
+    } else if (currentScreen === 'landing') {
+        if ((left && !prev.left) || (right && !prev.right)) {
+            selectedGameMode = selectedGameMode === 'arcade' ? 'reversesnake' : 'arcade';
+            modeCards.forEach(c => c.classList.toggle('selected', c.dataset.modeType === selectedGameMode));
+        }
+        if ((action && !prev.action) || (start && !prev.start)) goToMenuScreen();
     } else if (currentScreen === 'menu') {
         if (up && !prev.up) handleMenuNavigation('w');
         if (down && !prev.down) handleMenuNavigation('s');
@@ -975,13 +1067,23 @@ window.addEventListener('keydown', (e) => {
         e.preventDefault();
     }
 
+    if (activeModal !== null) {
+        if (key === 'escape' || key === 'enter') {
+            if (activeModal === 'howto') closeHowToModal();
+            else if (activeModal === 'settings') closeSettingsModal();
+        }
+        return;
+    }
+
     if (key === 'p' && currentScreen === 'game') {
         togglePauseGame();
         return;
     }
 
-    if (currentScreen === 'avatar') {
-        if (key === 'enter') confirmAvatarSelection();
+    if (currentScreen === 'mainmenu') {
+        handleMainMenuNav(key);
+    } else if (currentScreen === 'avatar') {
+        if (key === 'enter') confirmAvatarsBtn.click();
     } else if (currentScreen === 'landing') {
         if (key === 'a' || key === 'arrowleft' || key === 'd' || key === 'arrowright') {
             selectedGameMode = selectedGameMode === 'arcade' ? 'reversesnake' : 'arcade';
@@ -1012,6 +1114,9 @@ function handleGameInput(key) {
     }
 }
 
+/* ==========================================================================
+   7. MATCH FLOW & ENGINE CYCLES
+   ========================================================================== */
 function startGame() {
     p1Score = 0;
     p2Score = 0;
@@ -1150,9 +1255,9 @@ function endReverseSnakeMatch() {
     setTimeout(() => {
         bgMusic.volume = 1.0;
         gameScreen.classList.add('hidden');
-        landingScreen.classList.remove('hidden');
-        currentScreen = 'landing';
-        statusText.textContent = 'INSERT COIN • CHOOSE YOUR DUEL MODE';
+        mainMenuScreen.classList.remove('hidden');
+        currentScreen = 'mainmenu';
+        statusText.textContent = 'SELECT AN OPTION FROM THE ARCADE TERMINAL';
     }, 4000);
 }
 
@@ -1386,13 +1491,18 @@ function awardPoint(winner, message) {
         setTimeout(() => {
             bgMusic.volume = 1.0;
             gameScreen.classList.add('hidden');
-            avatarScreen.classList.remove('hidden');
-            currentScreen = 'landing';
-            statusText.textContent = 'INSERT COIN • CHOOSE YOUR DUEL MODE';
+            mainMenuScreen.classList.remove('hidden');
+            currentScreen = 'mainmenu';
+            statusText.textContent = 'SELECT AN OPTION FROM THE ARCADE TERMINAL';
         }, 3500);
     } else {
         setTimeout(initiateNextRoundCountdown, 2000);
     }
-    
-    requestAnimationFrame(pollGamepads);
 }
+
+window.addEventListener('DOMContentLoaded', () => {
+    updateMainMenuSelection();
+    updatePadUI();
+    updateMusicUI();
+    requestAnimationFrame(pollGamepads);
+});

@@ -24,27 +24,29 @@
     <div class="game-container">
         <!-- CRT Arcade Scanline Effect -->
         <div class="scanlines"></div>
-
-        <!-- Top Left Controls (Gamepad Port Assignment) -->
-        <div class="top-left-controls">
-            <button id="padSwapBtn" class="audio-btn" title="Swap Gamepad Assignment">🎮 PAD: P1=PORT1</button>
-        </div>
-
-        <!-- Top Right Controls (Audio Toggle) -->
-        <div class="top-right-controls">
-            <button id="musicToggleBtn" class="audio-btn" title="Toggle Music">🎵 OFF</button>
-        </div>
         
         <!-- Header Section -->
         <header class="header">
             <h1 class="game-title">REFLEX STRIKE</h1>
             <div class="arcade-subhead"><span>ARCADE</span> <span>GAMES</span></div>
-            <p id="status" class="status-message">SNAP PHOTOS TO CUSTOMIZE YOUR FIGHTERS!</p>
+            <p id="status" class="status-message">SELECT AN OPTION FROM THE ARCADE TERMINAL</p>
         </header>
 
-        <!-- STEP 0: CAMERA SETUP SCREEN (FIRST STEP NOW) -->
-        <div id="avatarScreen" class="screen">
-            <div class="screen-header">
+        <!-- STEP 0: MAIN MENU SCREEN -->
+        <div id="mainMenuScreen" class="screen">
+            <div class="main-menu-options">
+                <button class="menu-btn selected" id="mainStartBtn">⚡ START GAME</button>
+                <button class="menu-btn" id="mainProfileBtn">🪪 PROFILE SETUP</button>
+                <button class="menu-btn" id="mainHowToBtn">■ HOW TO PLAY</button>
+                <button class="menu-btn" id="mainSettingsBtn">⚙ SETTINGS</button>
+            </div>
+            <p class="terminal-footer-hint">READY PLAYER ONE & TWO • KEYBOARD & CONTROLLER READY</p>
+        </div>
+
+        <!-- STEP 1: CAMERA / AVATAR SETUP SCREEN -->
+        <div id="avatarScreen" class="screen hidden">
+            <div class="screen-header header-with-back">
+                <button id="avatarBackBtn" class="btn back-btn">MAIN MENU</button>
                 <h2>PLAYER PROFILE SETUP</h2>
                 <p>Snap photos using your camera to fit onto the stickmen!</p>
             </div>
@@ -90,14 +92,14 @@
             </div>
 
             <button id="confirmAvatarsBtn" class="btn primary-btn font-large">
-                CONTINUE TO MODE SELECT
+                CONFIRM & RETURN TO MENU
             </button>
         </div>
 
-        <!-- STEP 1: MODE SELECTION -->
+        <!-- STEP 2: MODE SELECTION SCREEN -->
         <div id="landingScreen" class="screen hidden">
             <div class="screen-header header-with-back">
-                <button id="avatarBackBtn" class="btn back-btn">PROFILE SETUP</button>
+                <button id="modeBackBtn" class="btn back-btn">MAIN MENU</button>
                 <h2>SELECT GAME MODE</h2>
                 <p>Pick a duel mode to test your reflexes and strategy!</p>
             </div>
@@ -126,7 +128,7 @@
             <p class="hint-text">Use [A / D] or [◄ / ►] to pick mode • Press [Enter] or Click to Select</p>
         </div>
 
-        <!-- STEP 2: TARGET SCORE / TIMER MENU SCREEN -->
+        <!-- STEP 3: TARGET SCORE / TIMER MENU SCREEN -->
         <div id="menuScreen" class="screen hidden">
             <div class="screen-header header-with-back">
                 <button id="menuBackBtn" class="btn back-btn">GAME SELECT</button>
@@ -143,7 +145,7 @@
             <p class="hint-text">Navigate with [W / S] or [▲ / ▼] • Press [Enter] or Click to Start</p>
         </div>
 
-        <!-- STEP 3: GAME ARENA SCREEN -->
+        <!-- STEP 4: GAME ARENA SCREEN -->
         <div id="gameScreen" class="screen hidden">
 
             <!-- Scoreboard -->
@@ -203,6 +205,51 @@
                 <button id="gameBackBtn" class="btn back-btn arena-back-btn">QUIT TO MENU (ESC)</button>
             </div>
 
+        </div>
+
+        <!-- MODAL 1: HOW TO PLAY -->
+        <div id="howToModal" class="modal-backdrop hidden">
+            <div class="modal-box">
+                <h2 class="modal-title">HOW TO PLAY & CONTROLS</h2>
+                <div class="modal-scroll-content">
+                    <div class="guide-section">
+                        <h3>🎮 CONTROLS REFERENCE</h3>
+                        <ul>
+                            <li><strong>Player 1:</strong> [W, A, S, D] keys for movement & actions.</li>
+                            <li><strong>Player 2:</strong> [Arrow Keys] and [Enter/Shift] for actions.</li>
+                            <li><strong>Gamepads:</strong> Supported natively! Press [Select] to swap controller ports.</li>
+                        </ul>
+                    </div>
+                    <div class="guide-section">
+                        <h3>⚡ ARCADE DUEL MINI-GAMES</h3>
+                        <ul>
+                            <li><strong>Green Light Reflex:</strong> Strike your action button as soon as the screen flashes GREEN. False start gives point to opponent!</li>
+                            <li><strong>Tug-of-War Clash:</strong> Mash your button continuously to pull the rope past your goal line.</li>
+                            <li><strong>Pattern Mash:</strong> Match the 5-step arrow sequence faster than your rival.</li>
+                        </ul>
+                    </div>
+                    <div class="guide-section">
+                        <h3>🐍 REVERSE SNAKE SHOWDOWN</h3>
+                        <ul>
+                            <li><strong>Player 1 (Snake):</strong> Hunt the fruit and cut off lanes. Stunned if you crash into yourself or hit traps.</li>
+                            <li><strong>Player 2 (Fruit):</strong> Evade the snake until the timer runs out! Collect blue orbs to drop purple traps.</li>
+                        </ul>
+                    </div>
+                </div>
+                <button id="closeHowToBtn" class="btn primary-btn modal-close-btn">CLOSE</button>
+            </div>
+        </div>
+
+        <!-- MODAL 2: SETTINGS -->
+        <div id="settingsModal" class="modal-backdrop hidden">
+            <div class="modal-box settings-modal-box">
+                <h2 class="modal-title">SETTINGS</h2>
+                <div class="modal-options-list">
+                    <button id="settingsMusicToggle" class="menu-btn selected">🎵 MUSIC: OFF</button>
+                    <button id="settingsPadToggle" class="menu-btn">🎮 PAD: P1=PORT1</button>
+                </div>
+                <button id="closeSettingsBtn" class="btn primary-btn modal-close-btn">CLOSE</button>
+            </div>
         </div>
 
     </div>
