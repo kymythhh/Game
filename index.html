@@ -25,6 +25,9 @@
         <!-- CRT Arcade Scanline Effect -->
         <div class="scanlines"></div>
         
+        <!-- Global Top-Left Back Button (Visible only on Avatar, Mode, and Match Condition screens) -->
+        <button id="globalBackBtn" class="btn back-btn global-back-btn hidden">◄ MAIN MENU</button>
+
         <!-- Header Section -->
         <header class="header">
             <h1 class="game-title">REFLEX STRIKE</h1>
@@ -45,8 +48,7 @@
 
         <!-- STEP 1: CAMERA / AVATAR SETUP SCREEN -->
         <div id="avatarScreen" class="screen hidden">
-            <div class="screen-header header-with-back">
-                <button id="avatarBackBtn" class="btn back-btn">MAIN MENU</button>
+            <div class="screen-header">
                 <h2>PLAYER PROFILE SETUP</h2>
                 <p>Snap photos using your camera to fit onto the stickmen!</p>
             </div>
@@ -98,8 +100,7 @@
 
         <!-- STEP 2: MODE SELECTION SCREEN -->
         <div id="landingScreen" class="screen hidden">
-            <div class="screen-header header-with-back">
-                <button id="modeBackBtn" class="btn back-btn">MAIN MENU</button>
+            <div class="screen-header">
                 <h2>SELECT GAME MODE</h2>
                 <p>Pick a duel mode to test your reflexes and strategy!</p>
             </div>
@@ -130,8 +131,7 @@
 
         <!-- STEP 3: TARGET SCORE / TIMER MENU SCREEN -->
         <div id="menuScreen" class="screen hidden">
-            <div class="screen-header header-with-back">
-                <button id="menuBackBtn" class="btn back-btn">GAME SELECT</button>
+            <div class="screen-header">
                 <h2 id="menuScreenTitle">SELECT MATCH CONDITION</h2>
                 <p id="selectedModeSubtitle">Win Condition</p>
             </div>

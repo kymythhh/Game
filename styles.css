@@ -65,6 +65,15 @@ body {
     opacity: 0.6;
 }
 
+/* Global Top-Left Back Button Styling (Pinned perfectly to top-left corner) */
+.global-back-btn {
+    position: absolute !important;
+    top: 16px !important;
+    left: 16px !important;
+    z-index: 50 !important;
+    margin: 0 !important;
+}
+
 .audio-btn {
     font-family: 'Press Start 2P', cursive;
     font-size: 0.5rem;
@@ -91,7 +100,7 @@ body {
 }
 
 .header {
-    margin-top: 10px;
+    margin-top: 15px;
     margin-bottom: 20px;
 }
 
@@ -175,25 +184,31 @@ body {
     z-index: 20;
 }
 
+/* Pushed down and centered screen headers */
+.screen-header {
+    margin-top: 25px;
+    text-align: center;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
 .screen-header h2 {
     font-family: 'Press Start 2P', cursive;
     font-size: 0.85rem;
     color: #fff;
     letter-spacing: 1px;
+    text-align: center;
 }
 
 .screen-header p {
     font-size: 0.95rem;
     font-weight: 700;
     color: var(--text-muted);
-    margin-top: 4px;
-}
-
-.header-with-back {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
+    margin-top: 6px;
+    text-align: center;
 }
 
 /* Main Menu Component */
@@ -280,6 +295,7 @@ body {
     font-weight: 600;
     color: var(--text-muted);
     line-height: 1.4;
+    text-align: center;
 }
 
 /* Avatar Setup Screen */
@@ -422,7 +438,6 @@ body {
     color: var(--text-muted);
     border: 1px solid var(--border-color);
     padding: 8px 12px;
-    align-self: flex-start;
 }
 
 .back-btn:hover {
@@ -430,7 +445,6 @@ body {
     color: #fff;
     border-color: var(--p1-color);
     box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
-    transform: translateX(-3px);
 }
 
 .arena-back-btn {

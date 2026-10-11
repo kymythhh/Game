@@ -472,6 +472,8 @@ const avatarScreen = document.getElementById('avatarScreen');
 const menuScreen = document.getElementById('menuScreen');
 const gameScreen = document.getElementById('gameScreen');
 
+const globalBackBtn = document.getElementById('globalBackBtn');
+
 const mainStartBtn = document.getElementById('mainStartBtn');
 const mainProfileBtn = document.getElementById('mainProfileBtn');
 const mainHowToBtn = document.getElementById('mainHowToBtn');
@@ -491,9 +493,6 @@ const selectedModeSubtitle = document.getElementById('selectedModeSubtitle');
 const menuScreenTitle = document.getElementById('menuScreenTitle');
 const scoreOptionsContainer = document.getElementById('scoreOptions');
 
-const avatarBackBtn = document.getElementById('avatarBackBtn');
-const modeBackBtn = document.getElementById('modeBackBtn');
-const menuBackBtn = document.getElementById('menuBackBtn');
 const gameBackBtn = document.getElementById('gameBackBtn');
 
 const p1Video = document.getElementById('p1Video');
@@ -625,6 +624,81 @@ function closeSettingsModal() {
     settingsModal.classList.add('hidden');
 }
 
+function updateScreenVisibility() {
+    mainMenuScreen.classList.add('hidden');
+    landingScreen.classList.add('hidden');
+    avatarScreen.classList.add('hidden');
+    menuScreen.classList.add('hidden');
+    gameScreen.classList.add('hidden');
+
+    if (currentScreen === 'mainmenu') {
+        mainMenuScreen.classList.remove('hidden');
+        if (globalBackBtn) globalBackBtn.classList.add('hidden');
+        statusText.textContent = "SELECT AN OPTION FROM THE ARCADE TERMINAL";
+    } else if (currentScreen === 'landing') {
+        landingScreen.classList.remove('hidden');
+        if (globalBackBtn) {
+            globalBackBtn.classList.remove('hidden');
+            globalBackBtn.textContent = "◄ MAIN MENU";
+        }
+        statusText.textContent = "CHOOSE YOUR DUEL MODE!";
+    } else if (currentScreen === 'avatar') {
+        avatarScreen.classList.remove('hidden');
+        if (globalBackBtn) {
+            globalBackBtn.classList.remove('hidden');
+            globalBackBtn.textContent = "◄ MAIN MENU";
+        }
+        statusText.textContent = "SNAP PHOTOS TO CUSTOMIZE YOUR FIGHTERS!";
+    } else if (currentScreen === 'menu') {
+        menuScreen.classList.remove('hidden');
+        if (globalBackBtn) {
+            globalBackBtn.classList.remove('hidden');
+            globalBackBtn.textContent = "◄ GAME SELECT";
+        }
+        statusText.textContent = 'NAVIGATE WITH [W / S] • SELECT WITH [ENTER / A]';
+    } else if (currentScreen === 'game') {
+        gameScreen.classList.remove('hidden');
+        if (globalBackBtn) globalBackBtn.classList.add('hidden');
+        statusText.textContent = "MATCH IN PROGRESS!";
+    }
+}
+
+if (globalBackBtn) {
+    globalBackBtn.addEventListener('click', () => {
+        if (currentScreen === 'avatar') {
+            if (typeof stopCamera === 'function') stopCamera();
+            currentScreen = 'mainmenu';
+            updateScreenVisibility();
+        } else if (currentScreen === 'landing') {
+            currentScreen = 'mainmenu';
+            updateScreenVisibility();
+        } else if (currentScreen === 'menu') {
+            currentScreen = 'landing';
+            updateScreenVisibility();
+        }
+    });
+}
+
+function openHowToModal() {
+    activeModal = 'howto';
+    howToModal.classList.remove('hidden');
+}
+
+function closeHowToModal() {
+    activeModal = null;
+    howToModal.classList.add('hidden');
+}
+
+function openSettingsModal() {
+    activeModal = 'settings';
+    settingsModal.classList.remove('hidden');
+}
+
+function closeSettingsModal() {
+    activeModal = null;
+    settingsModal.classList.add('hidden');
+}
+
 mainHowToBtn.addEventListener('click', openHowToModal);
 closeHowToBtn.addEventListener('click', closeHowToModal);
 
@@ -632,50 +706,23 @@ mainSettingsBtn.addEventListener('click', openSettingsModal);
 closeSettingsBtn.addEventListener('click', closeSettingsModal);
 
 mainStartBtn.addEventListener('click', () => {
-    mainMenuScreen.classList.add('hidden');
-    landingScreen.classList.remove('hidden');
     currentScreen = 'landing';
-    statusText.textContent = "CHOOSE YOUR DUEL MODE!";
+    updateScreenVisibility();
 });
 
 mainProfileBtn.addEventListener('click', () => {
-    mainMenuScreen.classList.add('hidden');
-    avatarScreen.classList.remove('hidden');
     currentScreen = 'avatar';
-    statusText.textContent = "SNAP PHOTOS TO CUSTOMIZE YOUR FIGHTERS!";
-    initWebcam();
-    updateAvatarDisplays();
+    updateScreenVisibility();
+    if (typeof initWebcam === 'function') initWebcam();
+    if (typeof updateAvatarDisplays === 'function') updateAvatarDisplays();
     updatePadUI();
 });
 
-avatarBackBtn.addEventListener('click', () => {
-    stopCamera();
-    avatarScreen.classList.add('hidden');
-    mainMenuScreen.classList.remove('hidden');
-    currentScreen = 'mainmenu';
-    statusText.textContent = "SELECT AN OPTION FROM THE ARCADE TERMINAL";
-});
-
 confirmAvatarsBtn.addEventListener('click', () => {
-    stopCamera();
-    avatarScreen.classList.add('hidden');
-    mainMenuScreen.classList.remove('hidden');
+    if (typeof stopCamera === 'function') stopCamera();
     currentScreen = 'mainmenu';
+    updateScreenVisibility();
     statusText.textContent = "PROFILES SAVED! SELECT AN OPTION";
-});
-
-modeBackBtn.addEventListener('click', () => {
-    landingScreen.classList.add('hidden');
-    mainMenuScreen.classList.remove('hidden');
-    currentScreen = 'mainmenu';
-    statusText.textContent = "SELECT AN OPTION FROM THE ARCADE TERMINAL";
-});
-
-menuBackBtn.addEventListener('click', () => {
-    menuScreen.classList.add('hidden');
-    landingScreen.classList.remove('hidden');
-    currentScreen = 'landing';
-    statusText.textContent = 'CHOOSE YOUR DUEL MODE!';
 });
 
 gameBackBtn.addEventListener('click', () => {
@@ -685,14 +732,12 @@ gameBackBtn.addEventListener('click', () => {
 function quitGameToMenu() {
     isGamePaused = false;
     pauseOverlay.classList.add('hidden');
-    clearInterval(countdownTimerObj);
-    clearTimeout(greenLightTimer);
-    stopSnakeLoops();
+    if (typeof countdownTimerObj !== 'undefined') clearInterval(countdownTimerObj);
+    if (typeof greenLightTimer !== 'undefined') clearTimeout(greenLightTimer);
+    if (typeof stopSnakeLoops === 'function') stopSnakeLoops();
     bgMusic.volume = 1.0;
-    gameScreen.classList.add('hidden');
-    mainMenuScreen.classList.remove('hidden');
     currentScreen = 'mainmenu';
-    statusText.textContent = 'SELECT AN OPTION FROM THE ARCADE TERMINAL';
+    updateScreenVisibility();
 }
 
 function togglePauseGame() {
@@ -730,9 +775,8 @@ startSetupBtn.addEventListener('click', () => {
 });
 
 function goToMenuScreen() {
-    landingScreen.classList.add('hidden');
-    menuScreen.classList.remove('hidden');
     currentScreen = 'menu';
+    updateScreenVisibility();
 
     if (selectedGameMode === 'reversesnake') {
         menuScreenTitle.textContent = "SELECT ROUND TIMER";
@@ -754,7 +798,6 @@ function goToMenuScreen() {
 
     selectedMenuIndex = 1;
     bindMenuButtons();
-    statusText.textContent = 'NAVIGATE WITH [W / S] • SELECT WITH [ENTER / A]';
 }
 
 function bindMenuButtons() {
@@ -983,7 +1026,7 @@ function processGamepadInput(gp, playerNum) {
     // Any controller press will start background audio if browser was waiting for a gesture
     if ((action || start || up || down || left || right) && musicEnabled && bgMusic.paused) {
         bgMusic.volume = 1.0;
-        bgMusic.play().then(updateMusicUI).catch(() => {});
+        bgMusic.play().then(updateMusicUI).catch(() => { });
     }
 
     if (select && !prev.select) {
